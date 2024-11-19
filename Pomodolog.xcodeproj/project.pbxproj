@@ -164,6 +164,10 @@
 			);
 			mainGroup = 658A62E92CDCDBC5007D2F0D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				658A65752CEC68E7007D2F0D /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 658A62F32CDCDBC5007D2F0D /* Products */;
 			projectDirPath = "";
@@ -489,6 +493,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.15.0;
+			};
+		};
+		658A65752CEC68E7007D2F0D /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess/";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 658A62EA2CDCDBC5007D2F0D /* Project object */;
 }
