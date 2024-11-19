@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct PomodologApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppView(store: self.delegate.store)
         }
     }
 }

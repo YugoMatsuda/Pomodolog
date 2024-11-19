@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		658A63032CDCDBC7007D2F0D /* Pomodolog Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 658A63022CDCDBC7007D2F0D /* Pomodolog Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		658A659B2CEC6E49007D2F0D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659A2CEC6E49007D2F0D /* ComposableArchitecture */; };
+		658A659D2CEC6E49007D2F0D /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659C2CEC6E49007D2F0D /* KeychainAccess */; };
+		658A659F2CEC6E56007D2F0D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659E2CEC6E56007D2F0D /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +65,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				658A659D2CEC6E49007D2F0D /* KeychainAccess in Frameworks */,
+				658A659B2CEC6E49007D2F0D /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				658A659F2CEC6E56007D2F0D /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +87,7 @@
 				658A658D2CEC6A41007D2F0D /* Extensions */,
 				658A62F42CDCDBC5007D2F0D /* Pomodolog */,
 				658A63062CDCDBC7007D2F0D /* Pomodolog Watch App */,
+				658A65992CEC6E49007D2F0D /* Frameworks */,
 				658A62F32CDCDBC5007D2F0D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -92,6 +99,13 @@
 				658A63022CDCDBC7007D2F0D /* Pomodolog Watch App.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		658A65992CEC6E49007D2F0D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -116,6 +130,8 @@
 			);
 			name = Pomodolog;
 			packageProductDependencies = (
+				658A659A2CEC6E49007D2F0D /* ComposableArchitecture */,
+				658A659C2CEC6E49007D2F0D /* KeychainAccess */,
 			);
 			productName = Pomodolog;
 			productReference = 658A62F22CDCDBC5007D2F0D /* Pomodolog.app */;
@@ -138,6 +154,7 @@
 			);
 			name = "Pomodolog Watch App";
 			packageProductDependencies = (
+				658A659E2CEC6E56007D2F0D /* ComposableArchitecture */,
 			);
 			productName = "Pomodolog Watch App";
 			productReference = 658A63022CDCDBC7007D2F0D /* Pomodolog Watch App.app */;
@@ -518,6 +535,24 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		658A659A2CEC6E49007D2F0D /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		658A659C2CEC6E49007D2F0D /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 658A65752CEC68E7007D2F0D /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		658A659E2CEC6E56007D2F0D /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 658A62EA2CDCDBC5007D2F0D /* Project object */;
 }
