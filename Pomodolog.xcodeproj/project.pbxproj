@@ -42,14 +42,37 @@
 		658A63022CDCDBC7007D2F0D /* Pomodolog Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pomodolog Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		65A0A2D72CF053B700FC2260 /* Exceptions for "Pomodolog" folder in "Pomodolog" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
+		};
+		65A0A2D92CF053BC00FC2260 /* Exceptions for "Pomodolog Watch App" folder in "Pomodolog Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Pomodolog-Watch-App-Info.plist",
+			);
+			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		658A62F42CDCDBC5007D2F0D /* Pomodolog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				65A0A2D72CF053B700FC2260 /* Exceptions for "Pomodolog" folder in "Pomodolog" target */,
+			);
 			path = Pomodolog;
 			sourceTree = "<group>";
 		};
 		658A63062CDCDBC7007D2F0D /* Pomodolog Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				65A0A2D92CF053BC00FC2260 /* Exceptions for "Pomodolog Watch App" folder in "Pomodolog Watch App" target */,
+			);
 			path = "Pomodolog Watch App";
 			sourceTree = "<group>";
 		};
@@ -364,12 +387,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Pomodolog Watch App/Pomodolog Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pomodolog Watch App/Preview Content\"";
 				DEVELOPMENT_TEAM = J4Z3PK4YF6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Pomodolog-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Pomodolog;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = UGO.Pomodolog;
@@ -394,12 +419,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Pomodolog Watch App/Pomodolog Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pomodolog Watch App/Preview Content\"";
 				DEVELOPMENT_TEAM = J4Z3PK4YF6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Pomodolog-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Pomodolog;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = UGO.Pomodolog;
@@ -425,12 +452,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pomodolog/Pomodolog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pomodolog/Preview Content\"";
 				DEVELOPMENT_TEAM = J4Z3PK4YF6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Pomodolog/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Pomodolog;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -457,12 +486,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pomodolog/Pomodolog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pomodolog/Preview Content\"";
 				DEVELOPMENT_TEAM = J4Z3PK4YF6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Pomodolog/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Pomodolog;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
