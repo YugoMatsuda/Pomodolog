@@ -42,24 +42,22 @@ struct RootPageView: View {
     var body: some View {
         ScrollViewReader { scrollProxy in
             ScrollView(.horizontal) {
-                HStack {
+                HStack(spacing: 0) {
                     ForEach(RootPage.State.SelectionPage.allCases, id: \.self) { page in
                         switch page {
                         case .setting:
-                            Button("Setting") {
-                            }
-                            .id(page)
-                        case .home:
-                            Text("home")
+                            SettingView()
                                 .id(page)
-
+                        case .home:
+                            Text("Home")
+                                .id(page)
+                            
                         case .hilight:
-                            Button("Hilight") {
-                            }
-                            .id(page)
+                            HilightView()
+                                .id(page)
                         }
                     }
-                    .containerRelativeFrame([.horizontal, .vertical], count: 1, spacing: 0)
+                    .containerRelativeFrame([.horizontal, .vertical])
                 }
                 .scrollTargetLayout()
             }
