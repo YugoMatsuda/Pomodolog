@@ -6,6 +6,7 @@ struct RootPage {
     @ObservableState
     struct State: Equatable {
         var selectionPage: SelectionPage? = .home
+        var home: Home.State = .init()
 
         enum SelectionPage: Int, Equatable,Hashable, CaseIterable {
             case setting
@@ -17,6 +18,7 @@ struct RootPage {
     enum Action: BindableAction {
         case view(ViewAction)
         case binding(BindingAction<State>)
+        case home(Home.Action)
 
         enum ViewAction {
             case onAppear
@@ -24,12 +26,17 @@ struct RootPage {
     }
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.home, action: \.home) {
+            Home()
+        }
         BindingReducer()
         Reduce<State, Action> { state, action in
             switch action {
             case .view(.onAppear):
                 return .none
             case .binding:
+                return .none
+            case .home:
                 return .none
             }
         }
@@ -49,9 +56,10 @@ struct RootPageView: View {
                             SettingView()
                                 .id(page)
                         case .home:
-                            Text("Home")
-                                .id(page)
-                            
+                            HomeView(
+                                store: store.scope(state: \.home, action: \.home)
+                            )
+                            .id(page)
                         case .hilight:
                             HilightView()
                                 .id(page)
