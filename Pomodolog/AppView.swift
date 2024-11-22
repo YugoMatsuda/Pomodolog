@@ -11,24 +11,31 @@ struct AppFeature {
         @dynamicMemberLookup
         public enum RootAppState: Equatable {
             case initial
-            case root
+            case rootPage(RootPage.State)
         }
     }
 
     enum Action {
         case appDelegate(AppDelegateReducer.Action)
+        case rootPage(RootPage.Action)
     }
 
     var body: some ReducerOf<Self> {
         Scope(state: \.appDelegate, action: \.appDelegate) {
             AppDelegateReducer()
         }
+        Scope(state: \.rootAppState, action: \.self) {
+          Scope(state: \.rootPage, action: \.rootPage) {
+              RootPage()
+          }
+        }
         Reduce<State, Action> { state, action in
             switch action {
             case .appDelegate(.didFinishLaunching):
-                state.rootAppState = .root
+                state.rootAppState = .rootPage(RootPage.State.init())
                 return .none
-
+            case .rootPage:
+                return .none
             }
         }
     }
@@ -41,8 +48,10 @@ struct AppView: View {
             switch store.rootAppState {
             case .initial:
                 ProgressView()
-            case .root:
-                Text("Rootview")
+            case .rootPage:
+                if let store = store.scope(state: \.rootAppState.rootPage, action: \.rootPage) {
+                    RootPageView(store: store)
+                }
             }
         }
     }
