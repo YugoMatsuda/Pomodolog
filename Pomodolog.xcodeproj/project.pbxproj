@@ -57,6 +57,30 @@
 			);
 			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
 		};
+		65A0A3052CF057A400FC2260 /* Exceptions for "Extensions" folder in "Pomodolog" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Color+Extensions.swift",
+				"CoreData+Extensions.swift",
+				"Date+Extensions.swift",
+				"NotificationCenter+Extensions.swift",
+				"TaskResult+Extensions.swift",
+				"TimeInterval+Extensions.swift",
+			);
+			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
+		};
+		65A0A3062CF057A400FC2260 /* Exceptions for "Extensions" folder in "Pomodolog Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Color+Extensions.swift",
+				"CoreData+Extensions.swift",
+				"Date+Extensions.swift",
+				"NotificationCenter+Extensions.swift",
+				"TaskResult+Extensions.swift",
+				"TimeInterval+Extensions.swift",
+			);
+			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -78,12 +102,26 @@
 		};
 		658A658D2CEC6A41007D2F0D /* Extensions */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				65A0A3052CF057A400FC2260 /* Exceptions for "Extensions" folder in "Pomodolog" target */,
+				65A0A3062CF057A400FC2260 /* Exceptions for "Extensions" folder in "Pomodolog Watch App" target */,
+			);
 			path = Extensions;
 			sourceTree = "<group>";
 		};
 		65A0A2E32CF0555100FC2260 /* CoreData */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CoreData;
+			sourceTree = "<group>";
+		};
+		65A0A2F22CF0575100FC2260 /* Dependencies */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
+		65A0A3072CF057BE00FC2260 /* Logger */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Logger;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -112,6 +150,8 @@
 		658A62E92CDCDBC5007D2F0D = {
 			isa = PBXGroup;
 			children = (
+				65A0A3072CF057BE00FC2260 /* Logger */,
+				65A0A2F22CF0575100FC2260 /* Dependencies */,
 				65A0A2E32CF0555100FC2260 /* CoreData */,
 				658A658D2CEC6A41007D2F0D /* Extensions */,
 				658A62F42CDCDBC5007D2F0D /* Pomodolog */,
@@ -157,6 +197,8 @@
 			fileSystemSynchronizedGroups = (
 				658A62F42CDCDBC5007D2F0D /* Pomodolog */,
 				65A0A2E32CF0555100FC2260 /* CoreData */,
+				65A0A2F22CF0575100FC2260 /* Dependencies */,
+				65A0A3072CF057BE00FC2260 /* Logger */,
 			);
 			name = Pomodolog;
 			packageProductDependencies = (
@@ -182,6 +224,8 @@
 			fileSystemSynchronizedGroups = (
 				658A63062CDCDBC7007D2F0D /* Pomodolog Watch App */,
 				65A0A2E32CF0555100FC2260 /* CoreData */,
+				65A0A2F22CF0575100FC2260 /* Dependencies */,
+				65A0A3072CF057BE00FC2260 /* Logger */,
 			);
 			name = "Pomodolog Watch App";
 			packageProductDependencies = (
