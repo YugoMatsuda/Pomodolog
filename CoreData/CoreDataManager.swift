@@ -33,7 +33,6 @@ struct CoreDataManager {
             let cloudOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: cloudContainerIdentifier)
             storeDescription.cloudKitContainerOptions = cloudOptions
 
-            storeDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
             storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
             container.persistentStoreDescriptions = [storeDescription]
         case .test, .preview:
