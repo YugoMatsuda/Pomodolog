@@ -78,6 +78,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				PomodoroSession.swift,
+				TimerSetting.swift,
 			);
 			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
 		};
@@ -85,6 +86,21 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				PomodoroSession.swift,
+				TimerSetting.swift,
+			);
+			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
+		};
+		65A0A38D2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Wave.swift,
+			);
+			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
+		};
+		65A0A38E2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Wave.swift,
 			);
 			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
 		};
@@ -137,6 +153,15 @@
 			path = Domain;
 			sourceTree = "<group>";
 		};
+		65A0A3892CF05F6400FC2260 /* CommonUI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				65A0A38D2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog" target */,
+				65A0A38E2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog Watch App" target */,
+			);
+			path = CommonUI;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +188,7 @@
 		658A62E92CDCDBC5007D2F0D = {
 			isa = PBXGroup;
 			children = (
+				65A0A3892CF05F6400FC2260 /* CommonUI */,
 				65A0A37F2CF05C1500FC2260 /* Domain */,
 				65A0A3072CF057BE00FC2260 /* Logger */,
 				65A0A2F22CF0575100FC2260 /* Dependencies */,
