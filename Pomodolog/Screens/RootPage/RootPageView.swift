@@ -5,9 +5,15 @@ import SwiftUI
 struct RootPage {
     @ObservableState
     struct State: Equatable {
+        @Shared var timerSettnig: TimerSetting
         var selectionPage: SelectionPage? = .home
-        var home: Home.State = .init()
-
+        var home: Home.State
+        
+        init(timerSettnig: Shared<TimerSetting>) {
+            self._timerSettnig = timerSettnig
+            self.home = .init(timerSetting: timerSettnig)
+        }
+        
         enum SelectionPage: Int, Equatable,Hashable, CaseIterable {
             case setting
             case home
@@ -78,7 +84,12 @@ struct RootPageView: View {
 }
 
 #Preview {
-    RootPageView(store: .init(initialState: RootPage.State(), reducer: {
-        RootPage()
-    }))
+    RootPageView(
+        store: .init(
+            initialState: RootPage.State(
+                timerSettnig: Shared<TimerSetting>.init(.initial())),
+            reducer: {
+                RootPage()
+            })
+    )
 }

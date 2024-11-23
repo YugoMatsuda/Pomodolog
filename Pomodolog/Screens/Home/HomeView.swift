@@ -5,6 +5,7 @@ import SwiftUI
 struct Home {
     @ObservableState
     struct State: Equatable {
+        @Shared var timerSetting: TimerSetting
     }
 
     enum Action: BindableAction {
@@ -37,7 +38,9 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(store: .init(initialState: Home.State.init(), reducer: {
+    HomeView(store: .init(initialState: Home.State.init(
+        timerSetting: Shared(TimerSetting.initial())
+    ), reducer: {
         Home()
     }))
 }
