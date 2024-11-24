@@ -6,6 +6,10 @@ protocol CoreDataClientProtocol: Sendable {
         _ domainEntity: T
     ) async throws
     
+    func insertList<T: CoreDataEntityConvertible>(
+        _ domainEntities: [T]
+    ) async throws
+    
     func fetchAll<T: CoreDataEntityConvertible>(
         _ type: T.Type,
         sortDescriptors: [SortDescriptorData]?
@@ -48,6 +52,14 @@ struct CoreDataClient: CoreDataClientProtocol {
     func insert<T: CoreDataEntityConvertible>(_ domainEntity: T) async throws {
         try await container.schedule(contextType: .background) { ctx in
             _ = try T.entityType.fromDomain(domainEntity, in: ctx)
+        }
+    }
+    
+    func insertList<T>(_ domainEntities: [T]) async throws where T : CoreDataEntityConvertible {
+        try await container.schedule(contextType: .background) { ctx in
+            try domainEntities.forEach { domainEntity in
+                _ = try T.entityType.fromDomain(domainEntity, in: ctx)
+            }
         }
     }
     
