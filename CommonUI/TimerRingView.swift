@@ -13,6 +13,10 @@ struct TimerRingView: View {
         isOngoing ? 1.15 : 0
     }
     
+    var dotRingScale: CGFloat {
+        isOngoing ? 0 : 1.15
+    }
+    
     var waveProgress: CGFloat {
         isOngoing ? progress : 1
     }
@@ -49,6 +53,9 @@ struct TimerRingView: View {
                             .stroke(Color.blue.gradient, lineWidth: 10)
                             .scaleEffect(outerRingScale)
                             .rotationEffect(.init(degrees: 270))
+                        
+                        DotCircleView()
+                            .scaleEffect(dotRingScale)
 
                         
                         Circle()
@@ -102,6 +109,23 @@ struct TimerRingView: View {
         withAnimation(Animation.linear(duration: 2).repeatForever(autoreverses: false)) {
             self.waveOffset = Angle(degrees: self.waveOffset.degrees + 360)
             self.waveOffset2 = Angle(degrees: self.waveOffset2.degrees - 360)
+        }
+    }
+    
+    struct DotCircleView: View {
+        let painted: CGFloat = 6
+        let unpainted: CGFloat = 6
+        @State private var rotate: Double = 0
+
+        var body: some View {
+            Circle()
+                .stroke(Color.blue, style: StrokeStyle(lineWidth: 3, lineCap: .butt, dash: [painted, unpainted]))
+                .rotationEffect(.degrees(rotate))
+                .onAppear {
+                    withAnimation(Animation.linear(duration: 20).repeatForever(autoreverses: false)) {
+                        rotate += 360
+                    }
+                }
         }
     }
 }
