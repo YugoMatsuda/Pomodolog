@@ -23,8 +23,9 @@
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="longBreakMinutes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="sessionCycle" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sessionTimeMinutes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="shortBreakTimeMinutes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="timerTypeData" optional="YES" attributeType="Binary"/>
+        <attribute name="timerType" optional="YES" attributeType="String"/>
         <relationship name="currentTag" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDTag" inverseName="timer" inverseEntity="CDTag"/>
     </entity>
 </model>

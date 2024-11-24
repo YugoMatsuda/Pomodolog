@@ -1,6 +1,7 @@
 import Foundation
 
 struct TimerSetting: Equatable, Sendable {
+    var sessionTimeMinutes: Int
     var shortBreakTimeMinutes: Int
     var longBreakTimeMinutes: Int
     var sessionCycle: Int
@@ -8,12 +9,14 @@ struct TimerSetting: Equatable, Sendable {
     var currentTag: Tag?
     
     init(
+        sessionTimeMinutes: Int,
         shortBreakTimeMinutes: Int,
         longBreakTimeMinutes: Int,
         sessionCycle: Int,
         timerType: TimerType,
         currentTag: Tag?
     ) {
+        self.sessionTimeMinutes = sessionTimeMinutes
         self.shortBreakTimeMinutes = shortBreakTimeMinutes
         self.longBreakTimeMinutes = longBreakTimeMinutes
         self.sessionCycle = sessionCycle
@@ -23,12 +26,12 @@ struct TimerSetting: Equatable, Sendable {
 }
 
 extension TimerSetting {
-    enum TimerType: Equatable, Codable {
+    enum TimerType: String, Equatable, Codable {
         case countup
-        case countDown(minutes: Int)
+        case countDown
         
         static func initial() -> TimerType {
-            .countDown(minutes: 25)
+            .countDown
         }
     }
 }
@@ -40,6 +43,7 @@ extension TimerSetting {
     
     static func initial() -> TimerSetting {
         .init(
+            sessionTimeMinutes: 25,
             shortBreakTimeMinutes: 5,
             longBreakTimeMinutes: 15,
             sessionCycle: 4,
