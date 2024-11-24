@@ -1,52 +1,40 @@
 import SwiftUI
 
 struct Wave: Shape {
+
     var offset: Angle
-    var percent: Double
+    var ratio: Double
     
-    var minPercent: Double {
-        min(percent, 0.8)
+    var animatableData: Double {
+        get { offset.degrees }
+        set { offset = Angle(degrees: newValue) }
     }
-
-    var animatableData: AnimatablePair<Double, Double> {
-         get { AnimatablePair(offset.degrees, minPercent) }
-         set {
-             offset = Angle(degrees: newValue.first)
-             percent = newValue.second
-         }
-     }
-
+    
     func path(in rect: CGRect) -> Path {
-        var path = Path()
+        var p = Path()
+
+        // empirically determined values for wave to be seen
+        // at 0 and 100 percent
+        let lowfudge = 0.02
+        let highfudge = 0.98
         
-        let waveHightRatio: Double = {
-            switch percent {
-            case 1...Double.infinity:
-                return 0.045
-            case 0.8...1:
-                return 0.035
-            default:
-                return 0.025
-            }
-        }()
-                
-        let waveHeight = waveHightRatio * rect.height
-        let yOffset = CGFloat(1 - minPercent) * (rect.height - 4 * waveHeight) + 2 * waveHeight
+        let newpercent = lowfudge + (highfudge - lowfudge) * ratio
+        let waveHeight = 0.02 * rect.height
+        let yoffset = CGFloat(1 - newpercent) * (rect.height - 4 * waveHeight) + 2 * waveHeight
         let startAngle = offset
         let endAngle = offset + Angle(degrees: 360)
-
-        path.move(to: CGPoint(x: 0, y: yOffset + waveHeight * CGFloat(sin(offset.radians))))
-
-        for angle in stride(from: startAngle.degrees, through: endAngle.degrees, by: 10) {
-            let x = CGFloat(angle - startAngle.degrees) / 360 * rect.width
-            let y = yOffset + waveHeight * CGFloat(sin(Angle(degrees: angle).radians))
-            path.addLine(to: CGPoint(x: x, y: y))
+        
+        p.move(to: CGPoint(x: 0, y: yoffset + waveHeight * CGFloat(sin(offset.radians))))
+        
+        for angle in stride(from: startAngle.degrees, through: endAngle.degrees, by: 5) {
+            let x = CGFloat((angle - startAngle.degrees) / 360) * rect.width
+            p.addLine(to: CGPoint(x: x, y: yoffset + waveHeight * CGFloat(sin(Angle(degrees: angle).radians))))
         }
-
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height))
-        path.addLine(to: CGPoint(x: 0, y: rect.height))
-        path.closeSubpath()
-
-        return path
+        
+        p.addLine(to: CGPoint(x: rect.width, y: rect.height))
+        p.addLine(to: CGPoint(x: 0, y: rect.height))
+        p.closeSubpath()
+        
+        return p
     }
 }
