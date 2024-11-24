@@ -117,8 +117,15 @@ struct HomeView: View {
 
     var body: some View {
         ZStack{
-            AuroraView()
-            TimerRingView()
+            switch store.timerState {
+            case .initial:
+                TimerRingView()
+            case .work:
+                AuroraView()
+                TimerRingView()
+            case .workBreak:
+                TimerRingView()
+            }
         }
         .onLoad {
             store.send(.view(.onLoad))
