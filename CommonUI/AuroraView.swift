@@ -35,7 +35,6 @@ struct AuroraView: View {
     
     private func animateCircles() {
         withAnimation(.easeInOut(duration: AnimationProperties.animationSpeed)) {
-            print("Yugo")
             animator.animate()
         }
     }
