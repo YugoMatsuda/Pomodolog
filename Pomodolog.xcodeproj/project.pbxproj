@@ -12,6 +12,8 @@
 		658A659D2CEC6E49007D2F0D /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659C2CEC6E49007D2F0D /* KeychainAccess */; };
 		658A659F2CEC6E56007D2F0D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659E2CEC6E56007D2F0D /* ComposableArchitecture */; };
 		65A0A3AF2CF2E98700FC2260 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 65A0A3AE2CF2E98700FC2260 /* KeychainAccess */; };
+		65A0A3C32CF359FE00FC2260 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 65A0A3C22CF359FE00FC2260 /* AsyncAlgorithms */; };
+		65A0A3C52CF35A0300FC2260 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 65A0A3C42CF35A0300FC2260 /* AsyncAlgorithms */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +101,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AuroraView.swift,
+				Modifier/OnLoadModifier.swift,
 				ShrinkButtonStyle.swift,
 				TimerRingView.swift,
 				Wave.swift,
@@ -205,6 +208,7 @@
 			files = (
 				658A659D2CEC6E49007D2F0D /* KeychainAccess in Frameworks */,
 				658A659B2CEC6E49007D2F0D /* ComposableArchitecture in Frameworks */,
+				65A0A3C32CF359FE00FC2260 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,6 +218,7 @@
 			files = (
 				65A0A3AF2CF2E98700FC2260 /* KeychainAccess in Frameworks */,
 				658A659F2CEC6E56007D2F0D /* ComposableArchitecture in Frameworks */,
+				65A0A3C52CF35A0300FC2260 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +285,7 @@
 			packageProductDependencies = (
 				658A659A2CEC6E49007D2F0D /* ComposableArchitecture */,
 				658A659C2CEC6E49007D2F0D /* KeychainAccess */,
+				65A0A3C22CF359FE00FC2260 /* AsyncAlgorithms */,
 			);
 			productName = Pomodolog;
 			productReference = 658A62F22CDCDBC5007D2F0D /* Pomodolog.app */;
@@ -307,6 +313,7 @@
 			packageProductDependencies = (
 				658A659E2CEC6E56007D2F0D /* ComposableArchitecture */,
 				65A0A3AE2CF2E98700FC2260 /* KeychainAccess */,
+				65A0A3C42CF35A0300FC2260 /* AsyncAlgorithms */,
 			);
 			productName = "Pomodolog Watch App";
 			productReference = 658A63022CDCDBC7007D2F0D /* Pomodolog Watch App.app */;
@@ -342,6 +349,7 @@
 			packageReferences = (
 				658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				658A65752CEC68E7007D2F0D /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				65A0A3C12CF3598E00FC2260 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 658A62F32CDCDBC5007D2F0D /* Products */;
@@ -694,6 +702,14 @@
 				kind = branch;
 			};
 		};
+		65A0A3C12CF3598E00FC2260 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -716,6 +732,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 658A65752CEC68E7007D2F0D /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		65A0A3C22CF359FE00FC2260 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65A0A3C12CF3598E00FC2260 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
+		65A0A3C42CF35A0300FC2260 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65A0A3C12CF3598E00FC2260 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

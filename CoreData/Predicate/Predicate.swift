@@ -19,6 +19,15 @@ struct PredicateData: Sendable {
     }
 }
 
+extension PredicateData {
+    static func getOngoingSession() -> PredicateData {
+        return PredicateData(
+           format: "endAt == nil",
+           arguments: []
+       )
+    }
+}
+
 extension SortDescriptorData {
     static func ascBySort() -> Self {
         .init(key: "sort", ascending: true)
