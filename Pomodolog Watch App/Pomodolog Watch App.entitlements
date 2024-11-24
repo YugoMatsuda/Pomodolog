@@ -16,5 +16,9 @@
 	<array>
 		<string>group.UGO.Pomodolog</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)UGO.Pomodolog.Keychain</string>
+	</array>
 </dict>
 </plist>
