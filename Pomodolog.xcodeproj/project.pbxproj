@@ -78,6 +78,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				PomodoroSession.swift,
+				Tag.swift,
 				TimerSetting.swift,
 			);
 			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
@@ -86,6 +87,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				PomodoroSession.swift,
+				Tag.swift,
 				TimerSetting.swift,
 			);
 			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
