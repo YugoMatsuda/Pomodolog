@@ -83,7 +83,6 @@
 				PomodoroSession.swift,
 				Tag.swift,
 				TimerSetting.swift,
-				TimerState.swift,
 			);
 			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
 		};
@@ -93,7 +92,6 @@
 				PomodoroSession.swift,
 				Tag.swift,
 				TimerSetting.swift,
-				TimerState.swift,
 			);
 			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
 		};

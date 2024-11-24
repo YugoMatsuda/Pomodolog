@@ -10,6 +10,22 @@ struct Home {
         var ongoingSession: PomodoroSession?
         var currentTime: Date = .now
         
+        var timerState: TimerState {
+            guard let ongoingSession = ongoingSession else { return .initial }
+            switch ongoingSession.sessionType {
+            case .work:
+                return .work
+            case .break:
+                return .workBreak
+            }
+        }
+        
+        enum TimerState: Equatable {
+            case initial
+            case work
+            case workBreak
+        }
+        
         struct ObserveResponse: Equatable {
             let ongoingSession: PomodoroSession?
             let timerSetting: TimerSetting
