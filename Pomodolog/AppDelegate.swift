@@ -33,6 +33,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
+        let _ = KeychainHelper.keychain
+        let _ = CoreDataManager.shared
         store.send(.appDelegate(.didFinishLaunching), animation: .easeIn)
         return true
     }
