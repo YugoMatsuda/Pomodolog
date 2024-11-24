@@ -15,8 +15,8 @@ enum KeychainHelper  {
         try? keychain().removeAll()
     }
     
-    static func saveUserId() throws {
-        try keychain().set(UUID().uuidString, key: Key.userId.rawValue)
+    static func saveUserId(_ userId: String) throws {
+        try keychain().set(userId, key: Key.userId.rawValue)
     }
     
     static func getUserId() throws -> String? {

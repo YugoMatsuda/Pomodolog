@@ -17,7 +17,8 @@ extension CDTimerSetting: DomainConvertible {
             shortBreakTimeMinutes: Int(self.shortBreakTimeMinutes),
             longBreakTimeMinutes: Int(self.longBreakMinutes),
             sessionCycle: Int(self.sessionCycle),
-            timerType: self.timerType
+            timerType: self.timerType,
+            currentTag: self.currentTag?.toDomain(context: context)
         )
     }
     
@@ -38,6 +39,12 @@ extension CDTimerSetting: DomainConvertible {
         cdTimerSetting.shortBreakTimeMinutes = Int16(domain.shortBreakTimeMinutes)
         cdTimerSetting.longBreakMinutes = Int16(domain.longBreakTimeMinutes)
         cdTimerSetting.sessionCycle = Int16(domain.sessionCycle)
+        
+        if let tag = domain.currentTag {
+            cdTimerSetting.currentTag = try CDTag.fromDomain(tag, in: context)
+        } else {
+            cdTimerSetting.currentTag = nil
+        }
         
         return cdTimerSetting as! Self
     }

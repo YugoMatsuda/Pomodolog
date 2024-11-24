@@ -17,6 +17,7 @@
         <attribute name="sort" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="updateAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="sessions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDPomodoroSession" inverseName="tag" inverseEntity="CDPomodoroSession"/>
+        <relationship name="timer" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDTimerSetting" inverseName="currentTag" inverseEntity="CDTimerSetting"/>
     </entity>
     <entity name="CDTimerSetting" representedClassName="CDTimerSetting" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String"/>
@@ -24,5 +25,6 @@
         <attribute name="sessionCycle" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="shortBreakTimeMinutes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="timerTypeData" optional="YES" attributeType="Binary"/>
+        <relationship name="currentTag" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDTag" inverseName="timer" inverseEntity="CDTag"/>
     </entity>
 </model>

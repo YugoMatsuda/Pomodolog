@@ -5,6 +5,21 @@ struct TimerSetting: Equatable, Sendable {
     var longBreakTimeMinutes: Int
     var sessionCycle: Int
     var timerType: TimerType
+    var currentTag: Tag?
+    
+    init(
+        shortBreakTimeMinutes: Int,
+        longBreakTimeMinutes: Int,
+        sessionCycle: Int,
+        timerType: TimerType,
+        currentTag: Tag?
+    ) {
+        self.shortBreakTimeMinutes = shortBreakTimeMinutes
+        self.longBreakTimeMinutes = longBreakTimeMinutes
+        self.sessionCycle = sessionCycle
+        self.timerType = timerType
+        self.currentTag = currentTag
+    }
 }
 
 extension TimerSetting {
@@ -28,7 +43,8 @@ extension TimerSetting {
             shortBreakTimeMinutes: 5,
             longBreakTimeMinutes: 15,
             sessionCycle: 4,
-            timerType: .initial()
+            timerType: .initial(),
+            currentTag: .focus()
         )
     }
 }

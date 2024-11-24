@@ -4,7 +4,7 @@ import SwiftUI
 
 struct UserSettingsClient: Sendable {
     var getUserId:@Sendable () throws ->  String?
-    var saveUserId: @Sendable () async throws -> Void
+    var saveUserId: @Sendable (_ userId: String) async throws -> Void
 }
 
 extension UserSettingsClient: DependencyKey {
@@ -12,8 +12,8 @@ extension UserSettingsClient: DependencyKey {
         getUserId: {
             try KeychainHelper.getUserId()
         },
-        saveUserId: {
-            try KeychainHelper.saveUserId()
+        saveUserId: { userId in
+            try KeychainHelper.saveUserId(userId)
         }
     )
 }

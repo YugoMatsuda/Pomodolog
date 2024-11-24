@@ -59,23 +59,71 @@ struct Splash {
             
             enum SetupDefaultDataError: Error {
                 case failedSetupDefaultData(Error)
+                case failedReadKeychain(Error)
             }
         }
     }
     
     @Dependency(\.coreDataClient) var coreDataClient
+    @Dependency(\.userSettingsClient) var userSettingsClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .view(.task):
+                do {
+                    let userId = try userSettingsClient.getUserId()
+                    let isFirstLaunch = userId == nil
+                    if isFirstLaunch {
+                        return .send(.internal(.exeSetupDefaultData), animation: .easeIn)
+                    }
+                    return .run { send in
+                        let timerSetting = try await coreDataClient.fetchById(TimerSetting.self, id: TimerSetting.id()) ?? .initial()
+                        await send(.internal(.receiveTimerSetting(timerSetting)))
+                    }
+                } catch {
+                    return .send(
+                        .internal(
+                            .occuredSetupDefaultDataError(.failedReadKeychain(error))),
+                        animation: .easeIn
+                    )
+                }
+            case .internal(.exeSetupDefaultData):
+                state.splashState = .setupDefalutData
                 return .run { send in
-                    let timerSetting = try await coreDataClient.fetchById(TimerSetting.self, id: TimerSetting.id()) ?? .initial()
+                    // UserIdの生成
+                    let userId = UUID().uuidString
+                    try await userSettingsClient.saveUserId(userId)
+                    
+                    // 初期タグの保存
+                    let defaultTags = Tag.defaultTags()
+                    for tag in defaultTags {
+                        try await coreDataClient.insert(tag)
+                    }
+                    
+                    // 初期タイマー設定の保存
+                    let timerSetting = TimerSetting.initial()
+                    try await coreDataClient.insert(timerSetting)
                     await send(.internal(.receiveTimerSetting(timerSetting)))
+                    
+                } catch: { error, send in
+                    await send(
+                        .internal(
+                            .occuredSetupDefaultDataError(.failedSetupDefaultData(error))),
+                        animation: .easeIn
+                    )
                 }
             case .internal(.receiveTimerSetting(let timerSetting)):
                 return .send(.delegate(.didCompleteLaunch(timerSetting)), animation: .easeIn)
-            case .internal:
+            case .internal(.occuredSetupDefaultDataError(let error)):
+                switch error {
+                case .failedReadKeychain(let error):
+                    state.splashState = .failedLaunch(.unreadKechain)
+                    AppLogger.shared.log("failedReadKeychain: \(error)", .warn)
+                case .failedSetupDefaultData(let error):
+                    state.splashState = .failedLaunch(.applicationFatal)
+                    AppLogger.shared.log("failedSetupDefaultData: \(error)", .warn)
+                }
                 return .none
             case .delegate:
                 return .none
