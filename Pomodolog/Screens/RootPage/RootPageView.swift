@@ -9,6 +9,10 @@ struct RootPage {
         var selectionPage: SelectionPage? = .home
         var home: Home.State
         
+        var isOngoingSession: Bool {
+            home.timerState != .initial
+        }
+        
         init(timerSettnig: Shared<TimerSetting>) {
             self._timerSettnig = timerSettnig
             self.home = .init(timerSetting: timerSettnig)
@@ -79,6 +83,11 @@ struct RootPageView: View {
             .scrollTargetBehavior(.paging)
             .scrollIndicators(.never)
             .defaultScrollAnchor(.center)
+            .scrollDisabled(store.isOngoingSession)
+            .onChange(of: store.isOngoingSession) { _, newValue in
+                guard newValue else { return }
+                scrollProxy.scrollTo(RootPage.State.SelectionPage.home, anchor: .center)
+            }
         }
     }
 }
