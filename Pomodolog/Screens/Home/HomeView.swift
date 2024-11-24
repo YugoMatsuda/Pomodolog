@@ -8,12 +8,15 @@ struct Home {
     struct State: Equatable {
         @Shared var timerSetting: TimerSetting
         var ongoingSession: PomodoroSession?
+        var currentTime: Date = .now
         
         struct ObserveResponse: Equatable {
             let ongoingSession: PomodoroSession?
             let timerSetting: TimerSetting
         }
     }
+    
+    enum CancelID { case timer }
 
     enum Action: BindableAction {
         case view(ViewAction)
@@ -26,6 +29,7 @@ struct Home {
         
         enum InternalAction {
             case observeResponse(TaskResult<State.ObserveResponse>)
+            case passedTime
         }
     }
     
@@ -55,6 +59,19 @@ struct Home {
             case .internal(.observeResponse(.success(let response))):
                 state.ongoingSession = response.ongoingSession
                 state.timerSetting = response.timerSetting
+                if state.ongoingSession != nil {
+                    return .run { send in
+                        await send(
+                            .internal(.passedTime),
+                            animation: .default
+                        )
+                    }
+                    .cancellable(id: CancelID.timer)
+                } else {
+                    return .cancel(id: CancelID.timer)
+                }
+            case .internal(.passedTime):
+                state.currentTime = .now
                 return .none
             case .internal:
                 return .none
