@@ -3,6 +3,7 @@ import Foundation
 struct PomodoroSession: Identifiable, Equatable, Sendable {
     var id: String
     var sessionType: SessionType
+    var tag: Tag?
     var startAt: Date
     var endAt: Date?
     var createAt: Date
@@ -11,6 +12,7 @@ struct PomodoroSession: Identifiable, Equatable, Sendable {
     init(
         id: String,
         sessionType: SessionType,
+        tag: Tag?,
         startAt: Date,
         endAt: Date?,
         createAt: Date,
@@ -18,6 +20,7 @@ struct PomodoroSession: Identifiable, Equatable, Sendable {
     ) {
         self.id = id
         self.sessionType = sessionType
+        self.tag = tag
         self.startAt = startAt
         self.endAt = endAt
         self.createAt = createAt

@@ -25,6 +25,7 @@ extension CDPomodoroSession: DomainConvertible {
         return PomodoroSession(
             id: id,
             sessionType: sessionType,
+            tag: self.tag?.toDomain(context: context),
             startAt: startAt,
             endAt: endAt,
             createAt: createAt,
@@ -50,6 +51,17 @@ extension CDPomodoroSession: DomainConvertible {
         cdPomodoroSession.endAt = domain.endAt
         cdPomodoroSession.sessionType = domain.sessionType.rawValue
         cdPomodoroSession.updateAt = domain.updateAt
+        
+        if let tag = domain.tag {
+            let tagsFetchRequest: NSFetchRequest<CDTag> = CDTag.fetchRequest()
+            tagsFetchRequest.predicate = NSPredicate(format: "id == %@", tag.id as CVarArg)
+            fetchRequest.fetchLimit = 1
+            let cdTag = try context.fetch(tagsFetchRequest).first
+            cdPomodoroSession.tag = cdTag
+        } else {
+            cdPomodoroSession.tag = nil
+        }
+            
         return cdPomodoroSession as! Self
     }
 }
