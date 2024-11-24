@@ -96,6 +96,7 @@
 		65A0A38D2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AuroraView.swift,
 				ShrinkButtonStyle.swift,
 				TimerRingView.swift,
 				Wave.swift,
@@ -105,6 +106,7 @@
 		65A0A38E2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AuroraView.swift,
 				ShrinkButtonStyle.swift,
 				TimerRingView.swift,
 				Wave.swift,

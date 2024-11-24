@@ -34,7 +34,8 @@ struct HomeView: View {
     @Bindable var store: StoreOf<Home>
 
     var body: some View {
-        VStack{
+        ZStack{
+            AuroraView()
             TimerRingView()
         }
     }
