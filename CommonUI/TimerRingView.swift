@@ -35,7 +35,7 @@ struct TimerRingView: View {
     
     var body: some View {
         GeometryReader{ proxy in
-            let circleSize = min(390, proxy.size.width * 0.6)
+            let circleSize = min(390, proxy.size.width * 0.5)
             Button(action: {
                 withAnimation {
                     isOngoing.toggle()
