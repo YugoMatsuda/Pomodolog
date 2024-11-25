@@ -9,12 +9,12 @@ struct TimerRingView: View {
     
     @State var isOngoing: Bool = false
     
-    var outerRingScale: CGFloat {
-        isOngoing ? 1.15 : 0
+    var trimRingScale: CGFloat {
+        isOngoing ? 1.1 : 0
     }
     
     var dotRingScale: CGFloat {
-        isOngoing ? 0 : 1.15
+        isOngoing ? 0 : 1.0
     }
     
     var waveProgress: CGFloat {
@@ -35,70 +35,74 @@ struct TimerRingView: View {
     
     var body: some View {
         GeometryReader{ proxy in
-            let circleSize = min(390, proxy.size.width * 0.5)
+            let circleSize =  proxy.size.width
             Button(action: {
                 withAnimation {
                     isOngoing.toggle()
                 }
             }, label: {
-                VStack(spacing: 15){
-                    // MARK: Timer Ring
-                    ZStack{
-                        Circle()
-                            .stroke(innserCircleBackground, lineWidth: 10)
-                            .scaleEffect(outerRingScale)
-                        
-                        Circle()
-                            .trim(from: 0, to: progress)
-                            .stroke(Color.blue.gradient, lineWidth: 10)
-                            .scaleEffect(outerRingScale)
-                            .rotationEffect(.init(degrees: 270))
-                        
-                        DotCircleView()
-                            .scaleEffect(dotRingScale)
+                // MARK: Timer Ring
+                ZStack{
+                    Circle()
+                        .stroke(innserCircleBackground, lineWidth: 10)
+                        .scaleEffect(trimRingScale)
+                    
+                    Circle()
+                        .trim(from: 0, to: progress)
+                        .stroke(Color.blue.gradient, lineWidth: 10)
+                        .scaleEffect(trimRingScale)
+                        .rotationEffect(.init(degrees: 270))
+                    
+                    DotCircleView()
+                        .scaleEffect(dotRingScale)
 
-                        
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 30, height: 30)
-                            .overlay(content: {
-                                Circle()
-                                    .fill(.white)
-                                    .padding(5)
-                            })
-                            .frame(width: circleSize, height: circleSize, alignment: .center)
-                            .offset(x: circleSize / 2)
-                            .rotationEffect(.init(degrees: (progress * 360) + 270.0))
-                            .scaleEffect(outerRingScale)
+                    
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 30, height: 30)
+                        .overlay(content: {
+                            Circle()
+                                .fill(.white)
+                                .padding(5)
+                        })
+                        .offset(x: circleSize / 2)
+                        .rotationEffect(.init(degrees: (progress * 360) + 270.0))
+                        .scaleEffect(trimRingScale)
 
-                        
-                        Circle()
-                            .fill(waveProgress >= 1 ? Color.blue : innserCircleBackground)
-                            .overlay {
-                                if waveProgress < 1 {
-                                    Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: waveProgress)
-                                        .fill(Color.blue.gradient.opacity(0.8))
-                                        .mask {
-                                            Circle()
-                                        }
-                                    
-                                    Wave(offset: Angle(degrees: self.waveOffset2.degrees), ratio: waveProgress)
-                                        .fill(Color.blue.opacity(0.5))
-                                        .mask {
-                                            Circle()
-                                        }
-                                }
+                    
+                    Circle()
+                        .fill(waveProgress >= 1 ? Color.blue : innserCircleBackground)
+                        .overlay {
+                            if waveProgress < 1 {
+                                Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: waveProgress)
+                                    .fill(Color.blue.gradient.opacity(0.8))
+                                    .mask {
+                                        Circle()
+                                    }
+                                
+                                Wave(offset: Angle(degrees: self.waveOffset2.degrees), ratio: waveProgress)
+                                    .fill(Color.blue.opacity(0.5))
+                                    .mask {
+                                        Circle()
+                                    }
                             }
-                        
-                        Text("25:00")
-                            .font(.system(size: 45, weight: .bold))
-                    }
-                    .frame(width: circleSize, height: circleSize, alignment: .center)
-                    .animation(.easeInOut, value: waveProgress)
+                        }
+                        .scaleEffect(0.9)
+
+                    
+                    Text("25:00")
+                        .foregroundStyle(.white)
+                        .font(
+                            .system(
+                                size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                weight: .bold
+                            )
+                        )
                 }
+                .animation(.easeInOut, value: waveProgress)
             })
             .buttonStyle(ShrinkButtonStyle())
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
             .onAppear {
                 startWaveAnimation()
             }

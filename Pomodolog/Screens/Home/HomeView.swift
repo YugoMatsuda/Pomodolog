@@ -116,20 +116,58 @@ struct HomeView: View {
     @Bindable var store: StoreOf<Home>
 
     var body: some View {
-        ZStack{
-            switch store.timerState {
-            case .initial:
-                TimerRingView()
-            case .work:
-                AuroraView()
-                TimerRingView()
-            case .workBreak:
-                TimerRingView()
+            GeometryReader { proxy in
+                let timerSize = min(420, proxy.size.width * 0.6)
+                let buttonSize = min(300, proxy.size.width * 0.4)
+                ZStack{
+                    switch store.timerState {
+                    case .initial:
+                        VStack {
+                            timerRing(size: timerSize)
+                            button(size: buttonSize)
+                        }
+                        
+                        
+                    case .work:
+                        AuroraView()
+                        TimerRingView()
+                    case .workBreak:
+                        TimerRingView()
+                    }
+                }
+                .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
             }
+            .onLoad {
+                store.send(.view(.onLoad))
+            }
+    }
+    
+    @ViewBuilder
+    func timerRing(size: CGFloat) -> some View {
+        TimerRingView()
+            .frame(width: size, height: size)
+    }
+    
+    
+    @ViewBuilder
+    func button(size: CGFloat) -> some View {
+        Button {
+            
+        } label: {
+            Text("Start")
+                .font(
+                    .system(
+                        size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
+                        weight: .bold
+                    )
+                )
+                .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+                .foregroundStyle(.white)
+                .background(.blue)
+                .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
         }
-        .onLoad {
-            store.send(.view(.onLoad))
-        }
+        .buttonStyle(ShrinkButtonStyle())
+        .offset(y: UIDevice.current.userInterfaceIdiom == .phone ? 30 : 60)
     }
 }
 
