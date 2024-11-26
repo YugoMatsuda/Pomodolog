@@ -151,23 +151,26 @@ struct HomeView: View {
     
     @ViewBuilder
     func button(size: CGFloat) -> some View {
-        Button {
-            
-        } label: {
-            Text("Start")
-                .font(
-                    .system(
-                        size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
-                        weight: .bold
+        VStack {
+            Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+            Button {
+                
+            } label: {
+                Text("Start")
+                    .font(
+                        .system(
+                            size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
+                            weight: .bold
+                        )
                     )
-                )
-                .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
-                .foregroundStyle(.white)
-                .background(.blue)
-                .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
+                    .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+                    .foregroundStyle(.white)
+                    .background(.blue)
+                    .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
+            }
+            .buttonStyle(ShrinkButtonStyle())
         }
-        .buttonStyle(ShrinkButtonStyle())
-        .offset(y: UIDevice.current.userInterfaceIdiom == .phone ? 30 : 60)
+
     }
 }
 

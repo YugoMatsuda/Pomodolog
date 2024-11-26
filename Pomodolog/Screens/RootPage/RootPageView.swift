@@ -75,7 +75,7 @@ struct RootPageView: View {
                                 .id(page)
                         }
                     }
-                    .containerRelativeFrame([.horizontal, .vertical])
+                    .containerRelativeFrame(.horizontal)
                 }
                 .scrollTargetLayout()
             }
