@@ -156,7 +156,8 @@ struct Home {
         let timerSetting = state.timerSetting
         let isCountUp = timerSetting.timerType == .countup
         let elapsedTime = state.elapsedTime
-        
+        let tag = timerSetting.currentTag ?? .focus()
+
         switch ongoingSession.sessionType {
         case .work:
             if isCountUp {
@@ -168,7 +169,8 @@ struct Home {
                     progress: CGFloat(progress),
                     timerInterval: timerInterval,
                     hasFinishedCountDown: false,
-                    timerState: state.timerState
+                    timerState: state.timerState,
+                    currentTag: tag
                 )
             } else {
                 // カウントダウンの場合
@@ -180,7 +182,8 @@ struct Home {
                         progress: 0,
                         timerInterval: newTimerInterval,
                         hasFinishedCountDown: true,
-                        timerState: state.timerState
+                        timerState: state.timerState,
+                        currentTag: tag
                     )
                 } else {
                     // カウントダウン中
@@ -189,7 +192,8 @@ struct Home {
                         progress: CGFloat(progress),
                         timerInterval: remainingTime,
                         hasFinishedCountDown: false,
-                        timerState: state.timerState
+                        timerState: state.timerState,
+                        currentTag: tag
                     )
                 }
             }
@@ -204,7 +208,8 @@ struct Home {
                     progress: CGFloat(0),
                     timerInterval: newTimerInterval,
                     hasFinishedCountDown: true,
-                    timerState: state.timerState
+                    timerState: state.timerState,
+                    currentTag: tag
                 )
             } else {
                 let progress = max(remainingTime / timerSetting.shortBreakTimeInterval, 0)
@@ -212,7 +217,8 @@ struct Home {
                     progress: CGFloat(progress),
                     timerInterval: remainingTime,
                     hasFinishedCountDown: false,
-                    timerState: state.timerState
+                    timerState: state.timerState,
+                    currentTag: tag
                 )
             }
         }

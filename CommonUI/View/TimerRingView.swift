@@ -13,6 +13,21 @@ struct TimerRingView: View {
         var timerInterval: TimeInterval
         var hasFinishedCountDown: Bool
         var timerState: TimerState
+        var currentTag: Tag
+        
+        init(
+            progress: CGFloat,
+            timerInterval: TimeInterval,
+            hasFinishedCountDown: Bool,
+            timerState: TimerState,
+            currentTag: Tag
+        ) {
+            self.progress = progress
+            self.timerInterval = timerInterval
+            self.hasFinishedCountDown = hasFinishedCountDown
+            self.timerState = timerState
+            self.currentTag = currentTag
+        }
     }
     
     var trimRingScale: CGFloat {
@@ -90,18 +105,27 @@ struct TimerRingView: View {
                     }
                     .scaleEffect(0.9)
 
-                let text = config.hasFinishedCountDown ? "+" : ""
-                Text(text + config.timerInterval.timerText)
-                    .foregroundStyle(.white)
-                    .font(
-                        .system(
-                            size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                            weight: .bold
+                VStack(spacing: 0) {
+                    if !config.timerState.isOngoingSession {
+                        Text(config.currentTag.name)
+                            .foregroundStyle(.white)
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                    }
+                    let text = config.hasFinishedCountDown ? "+" : ""
+                    Text(text + config.timerInterval.timerText)
+                        .foregroundStyle(.white)
+                        .font(
+                            .system(
+                                size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                weight: .bold
+                            )
                         )
-                    )
-                    .monospacedDigit()
-                    .contentTransition(.numericText(value: config.timerInterval))
-                    .animation(.snappy, value: config.timerInterval.timerText)
+                        .monospacedDigit()
+                        .contentTransition(.numericText(value: config.timerInterval))
+                        .animation(.snappy, value: config.timerInterval.timerText)
+                }
+              
             }
             .animation(.easeInOut, value: waveProgress)
             .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
@@ -152,7 +176,8 @@ extension TimerRingView.Config {
             progress: 1,
             timerInterval: timerSetting.sessionTimeInterval,
             hasFinishedCountDown: false,
-            timerState: .initial
+            timerState: .initial,
+            currentTag: .focus()
         )
     }
 }

@@ -100,10 +100,11 @@
 		65A0A38D2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AuroraView.swift,
 				Modifier/OnLoadModifier.swift,
 				ShrinkButtonStyle.swift,
-				TimerRingView.swift,
+				View/AuroraView.swift,
+				View/TagItemView.swift,
+				View/TimerRingView.swift,
 				Wave.swift,
 			);
 			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
@@ -111,8 +112,9 @@
 		65A0A38E2CF05F8000FC2260 /* Exceptions for "CommonUI" folder in "Pomodolog Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AuroraView.swift,
 				ShrinkButtonStyle.swift,
+				View/AuroraView.swift,
+				View/TagItemView.swift,
 				Wave.swift,
 			);
 			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
