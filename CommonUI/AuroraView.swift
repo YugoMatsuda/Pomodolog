@@ -9,7 +9,7 @@ struct AuroraView: View {
     }
     
     @State private var timer = Timer.publish(every: AnimationProperties.timerDuration, on: .main, in: .common).autoconnect()
-    @ObservedObject private var animator = CircleAnimator(color: .blue)
+    @StateObject private var animator = CircleAnimator(color: .blue)
     
     var body: some View {
         ZStack {
