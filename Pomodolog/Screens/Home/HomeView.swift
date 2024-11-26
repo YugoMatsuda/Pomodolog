@@ -10,20 +10,101 @@ struct Home {
         var ongoingSession: PomodoroSession?
         var currentTime: Date = .now
         
+        var elapsedTime: TimeInterval {
+            guard let ongoingSession = ongoingSession else {
+                return 0
+            }
+            return currentTime.timeIntervalSince(ongoingSession.startAt)
+        }
+        
         var timerState: TimerState {
-            guard let ongoingSession = ongoingSession else { return .initial }
+            guard let ongoingSession = ongoingSession else {
+                return .initial(
+                    timerConfig: TimerRingView.Config.init(
+                        isOngoing: false,
+                        progress: 1,
+                        timerInterval: timerSetting.sessionTimeInterval,
+                        hasFinishedCountDown: false
+                    )
+                )
+            }
+            let isCountUp = timerSetting.timerType == .countup
+            
             switch ongoingSession.sessionType {
             case .work:
-                return .work
+                if isCountUp {
+                    // カウントアップの場合
+                    let timerInterval = elapsedTime
+                    let progress = min(timerInterval / timerSetting.sessionTimeInterval, 1)
+                    
+                    return .work(
+                        timerConfig: TimerRingView.Config(
+                            isOngoing: true,
+                            progress: CGFloat(progress),
+                            timerInterval: timerInterval,
+                            hasFinishedCountDown: false
+                        )
+                    )
+                } else {
+                    // カウントダウンの場合
+                    let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
+                    if remainingTime <= 0 {
+                        // カウントダウンが終了した場合、カウントアップに切り替える
+                        let newTimerInterval = abs(remainingTime)
+                        let progress = min(newTimerInterval / timerSetting.sessionTimeInterval, 1)
+                        
+                        return .work(
+                            timerConfig: TimerRingView.Config(
+                                isOngoing: true,
+                                progress: CGFloat(progress),
+                                timerInterval: newTimerInterval,
+                                hasFinishedCountDown: true
+                            )
+                        )
+                    } else {
+                        // カウントダウン中
+                        let progress = max(remainingTime / timerSetting.sessionTimeInterval, 0)
+                        
+                        return .work(
+                            timerConfig: TimerRingView.Config(
+                                isOngoing: true,
+                                progress: CGFloat(progress),
+                                timerInterval: remainingTime,
+                                hasFinishedCountDown: false
+                            )
+                        )
+                    }
+                }
             case .break:
-                return .workBreak
+                // 休憩時は常にカウントダウン
+                let remainingTime = timerSetting.shortBreakTimeInterval - elapsedTime
+                let clampedTime = max(remainingTime, 0)
+                let progress = clampedTime > 0 ? CGFloat(clampedTime / Double(timerSetting.shortBreakTimeInterval)) : 0.0
+                
+                return .workBreak(
+                    timerConfig: TimerRingView.Config(
+                        isOngoing: true,
+                        progress: progress,
+                        timerInterval: clampedTime,
+                        hasFinishedCountDown: false
+                    )
+                )
             }
         }
         
         enum TimerState: Equatable {
-            case initial
-            case work
-            case workBreak
+            case initial(timerConfig: TimerRingView.Config)
+            case work(timerConfig: TimerRingView.Config)
+            case workBreak(timerConfig: TimerRingView.Config)
+            
+            var isOngoingSession: Bool {
+                switch self {
+                case .initial:
+                    return false
+                case .work, .workBreak:
+                    return true
+                }
+            }
         }
         
         struct ObserveResponse: Equatable {
@@ -121,18 +202,19 @@ struct HomeView: View {
                 let buttonSize = min(300, proxy.size.width * 0.4)
                 ZStack{
                     switch store.timerState {
-                    case .initial:
+                    case .initial(let config):
                         VStack {
-                            timerRing(size: timerSize)
+                            TimerRingView(config: config)
+                                .frame(width: timerSize, height: timerSize)
                             button(size: buttonSize)
                         }
-                        
-                        
-                    case .work:
+                    case .work(let config):
                         AuroraView()
-                        TimerRingView()
-                    case .workBreak:
-                        TimerRingView()
+                        TimerRingView(config: config)
+                            .frame(width: timerSize, height: timerSize)
+                    case .workBreak(let config):
+                        TimerRingView(config: config)
+                            .frame(width: timerSize, height: timerSize)
                     }
                 }
                 .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
@@ -141,13 +223,6 @@ struct HomeView: View {
                 store.send(.view(.onLoad))
             }
     }
-    
-    @ViewBuilder
-    func timerRing(size: CGFloat) -> some View {
-        TimerRingView()
-            .frame(width: size, height: size)
-    }
-    
     
     @ViewBuilder
     func button(size: CGFloat) -> some View {

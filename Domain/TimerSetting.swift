@@ -8,6 +8,19 @@ struct TimerSetting: Equatable, Sendable {
     var timerType: TimerType
     var currentTag: Tag?
     
+    var sessionTimeInterval: TimeInterval {
+        TimeInterval(sessionTimeMinutes * 60)
+    }
+    
+    // Optional: Similarly, you can add computed properties for the other time properties
+    var shortBreakTimeInterval: TimeInterval {
+        TimeInterval(shortBreakTimeMinutes * 60)
+    }
+    
+    var longBreakTimeInterval: TimeInterval {
+        TimeInterval(longBreakTimeMinutes * 60)
+    }
+    
     init(
         sessionTimeMinutes: Int,
         shortBreakTimeMinutes: Int,

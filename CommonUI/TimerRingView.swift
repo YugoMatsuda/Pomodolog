@@ -1,24 +1,29 @@
 import SwiftUI
 
 struct TimerRingView: View {
-    @State var progress: CGFloat = 0.7
     @State private var waveOffset = Angle(degrees: 0)
     @State private var waveOffset2 = Angle(degrees: 180)
     @Environment(\.colorScheme) var colorScheme
-    @State private var timer: Timer?
     
-    @State var isOngoing: Bool = false
+    let config: Config
+    
+    struct Config: Equatable {
+        var isOngoing: Bool
+        var progress: CGFloat
+        var timerInterval: TimeInterval
+        var hasFinishedCountDown: Bool
+    }
     
     var trimRingScale: CGFloat {
-        isOngoing ? 1.1 : 0
+        config.isOngoing ? 1.1 : 0
     }
     
     var dotRingScale: CGFloat {
-        isOngoing ? 0 : 1.0
+        config.isOngoing ? 0 : 1.0
     }
     
     var waveProgress: CGFloat {
-        isOngoing ? progress : 1
+        config.isOngoing ? config.progress : 1
     }
 
     private var innserCircleBackground: Color {
@@ -37,9 +42,9 @@ struct TimerRingView: View {
         GeometryReader{ proxy in
             let circleSize =  proxy.size.width
             Button(action: {
-                withAnimation {
-                    isOngoing.toggle()
-                }
+//                withAnimation {
+//                    isOngoing.toggle()
+//                }
             }, label: {
                 // MARK: Timer Ring
                 ZStack{
@@ -48,7 +53,7 @@ struct TimerRingView: View {
                         .scaleEffect(trimRingScale)
                     
                     Circle()
-                        .trim(from: 0, to: progress)
+                        .trim(from: 0, to: config.progress)
                         .stroke(Color.blue.gradient, lineWidth: 10)
                         .scaleEffect(trimRingScale)
                         .rotationEffect(.init(degrees: 270))
@@ -66,7 +71,7 @@ struct TimerRingView: View {
                                 .padding(5)
                         })
                         .offset(x: circleSize / 2)
-                        .rotationEffect(.init(degrees: (progress * 360) + 270.0))
+                        .rotationEffect(.init(degrees: (config.progress * 360) + 270.0))
                         .scaleEffect(trimRingScale)
 
                     
@@ -89,8 +94,8 @@ struct TimerRingView: View {
                         }
                         .scaleEffect(0.9)
 
-                    
-                    Text("25:00")
+                    let text = config.hasFinishedCountDown ? "+" : ""
+                    Text(text + config.timerInterval.timerText)
                         .foregroundStyle(.white)
                         .font(
                             .system(
@@ -98,12 +103,13 @@ struct TimerRingView: View {
                                 weight: .bold
                             )
                         )
+                        .animation(.snappy, value: config.timerInterval)
                 }
                 .animation(.easeInOut, value: waveProgress)
             })
             .buttonStyle(ShrinkButtonStyle())
             .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
-            .onAppear {
+            .onChange(of: config) { oldValue, newValue in
                 startWaveAnimation()
             }
         }
@@ -132,8 +138,4 @@ struct TimerRingView: View {
                 }
         }
     }
-}
-
-#Preview {
-    TimerRingView()
 }

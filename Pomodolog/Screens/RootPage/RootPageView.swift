@@ -10,7 +10,7 @@ struct RootPage {
         var home: Home.State
         
         var isOngoingSession: Bool {
-            home.timerState != .initial
+            home.timerState.isOngoingSession
         }
         
         init(timerSettnig: Shared<TimerSetting>) {
