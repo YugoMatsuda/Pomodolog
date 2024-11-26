@@ -3,27 +3,28 @@ import SwiftUI
 struct TimerRingView: View {
     @State private var waveOffset = Angle(degrees: 0)
     @State private var waveOffset2 = Angle(degrees: 180)
+    @State private var timer: Timer?
     @Environment(\.colorScheme) var colorScheme
     
     let config: Config
     
     struct Config: Equatable {
-        var isOngoing: Bool
         var progress: CGFloat
         var timerInterval: TimeInterval
         var hasFinishedCountDown: Bool
+        var timerState: TimerState
     }
     
     var trimRingScale: CGFloat {
-        config.isOngoing ? 1.1 : 0
+        config.timerState.isWorkSession ? 1.1 : 0
     }
     
     var dotRingScale: CGFloat {
-        config.isOngoing ? 0 : 1.0
+        config.timerState.isOngoingSession ? 0 : 1.0
     }
     
     var waveProgress: CGFloat {
-        config.isOngoing ? config.progress : 1
+        config.timerState.isOngoingSession ? config.progress : 1
     }
 
     private var innserCircleBackground: Color {
@@ -73,7 +74,7 @@ struct TimerRingView: View {
                 Circle()
                     .fill(waveProgress >= 1 ? Color.blue : innserCircleBackground)
                     .overlay {
-                        if waveProgress < 1 {
+                        if 0 < waveProgress && waveProgress < 1 {
                             Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: waveProgress)
                                 .fill(Color.blue.gradient.opacity(0.8))
                                 .mask {
@@ -98,20 +99,32 @@ struct TimerRingView: View {
                             weight: .bold
                         )
                     )
-                    .animation(.snappy, value: config.timerInterval)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(value: config.timerInterval))
+                    .animation(.snappy, value: config.timerInterval.timerText)
             }
             .animation(.easeInOut, value: waveProgress)
             .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
-            .onChange(of: config) { oldValue, newValue in
-//                startWaveAnimation()
+            .onChange(of: config.timerState.isOngoingSession) { oldValue, newValue in
+                self.timer?.invalidate()
+                guard newValue else { return }
+                startWaveAnimation()
             }
         }
     }
     
     private func startWaveAnimation() {
-        withAnimation(Animation.linear(duration: 2).repeatForever(autoreverses: false)) {
+        withAnimation(Animation.linear(duration: 1.5)) {
             self.waveOffset = Angle(degrees: self.waveOffset.degrees + 360)
             self.waveOffset2 = Angle(degrees: self.waveOffset2.degrees - 360)
+        }
+        self.timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
+            Task { @MainActor in
+                withAnimation(Animation.linear(duration: 1.5)) {
+                    self.waveOffset = Angle(degrees: self.waveOffset.degrees + 360)
+                    self.waveOffset2 = Angle(degrees: self.waveOffset2.degrees - 360)
+                }
+            }
         }
     }
     
@@ -136,10 +149,10 @@ struct TimerRingView: View {
 extension TimerRingView.Config {
     static func makeIdle(_ timerSetting: TimerSetting) -> TimerRingView.Config {
         .init(
-            isOngoing: false,
             progress: 1,
             timerInterval: timerSetting.sessionTimeInterval,
-            hasFinishedCountDown: false
+            hasFinishedCountDown: false,
+            timerState: .initial
         )
     }
 }

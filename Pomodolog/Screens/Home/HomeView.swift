@@ -39,30 +39,6 @@ struct Home {
             }
         }
         
-        enum TimerState: Equatable {
-            case initial
-            case work
-            case workBreak
-            
-            var isOngoingSession: Bool {
-                switch self {
-                case .initial:
-                    return false
-                case .work, .workBreak:
-                    return true
-                }
-            }
-            
-            var isWorkSession: Bool {
-                switch self {
-                case .initial, .workBreak:
-                    return false
-                case .work:
-                    return true
-                }
-            }
-        }
-        
         struct ObserveResponse: Equatable {
             let ongoingSession: PomodoroSession?
             let timerSetting: TimerSetting
@@ -189,10 +165,10 @@ struct Home {
                 let progress = min(timerInterval / timerSetting.sessionTimeInterval, 1)
                 
                 return TimerRingView.Config(
-                    isOngoing: true,
                     progress: CGFloat(progress),
                     timerInterval: timerInterval,
-                    hasFinishedCountDown: false
+                    hasFinishedCountDown: false,
+                    timerState: state.timerState
                 )
             } else {
                 // カウントダウンの場合
@@ -200,22 +176,20 @@ struct Home {
                 if remainingTime < 0 {
                     // カウントダウンが終了した場合、カウントアップに切り替える
                     let newTimerInterval = abs(remainingTime)
-                    let progress = min(newTimerInterval / timerSetting.sessionTimeInterval, 1)
-                    
                     return TimerRingView.Config(
-                        isOngoing: true,
-                        progress: CGFloat(progress),
+                        progress: 0,
                         timerInterval: newTimerInterval,
-                        hasFinishedCountDown: true
+                        hasFinishedCountDown: true,
+                        timerState: state.timerState
                     )
                 } else {
                     // カウントダウン中
                     let progress = max(remainingTime / timerSetting.sessionTimeInterval, 0)
                     return TimerRingView.Config(
-                        isOngoing: true,
                         progress: CGFloat(progress),
                         timerInterval: remainingTime,
-                        hasFinishedCountDown: false
+                        hasFinishedCountDown: false,
+                        timerState: state.timerState
                     )
                 }
             }
@@ -225,21 +199,20 @@ struct Home {
             if remainingTime < 0 {
                 // カウントダウンが終了した場合、カウントアップに切り替える
                 let newTimerInterval = abs(remainingTime)
-                let progress = min(newTimerInterval / timerSetting.shortBreakTimeInterval, 1)
                 
                 return TimerRingView.Config(
-                    isOngoing: true,
-                    progress: CGFloat(progress),
+                    progress: CGFloat(0),
                     timerInterval: newTimerInterval,
-                    hasFinishedCountDown: true
+                    hasFinishedCountDown: true,
+                    timerState: state.timerState
                 )
             } else {
                 let progress = max(remainingTime / timerSetting.shortBreakTimeInterval, 0)
                 return TimerRingView.Config(
-                    isOngoing: true,
                     progress: CGFloat(progress),
                     timerInterval: remainingTime,
-                    hasFinishedCountDown: false
+                    hasFinishedCountDown: false,
+                    timerState: state.timerState
                 )
             }
         }
