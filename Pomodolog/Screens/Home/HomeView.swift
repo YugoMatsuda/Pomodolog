@@ -7,95 +7,42 @@ struct Home {
     @ObservableState
     struct State: Equatable {
         @Shared var timerSetting: TimerSetting
+        var timerConfig: TimerRingView.Config
+        var buttonConfig: ActionButtonConfig = .initilal()
+
         var ongoingSession: PomodoroSession?
-        var currentTime: Date = .now
+        
+        init(
+            timerSetting: Shared<TimerSetting>
+        ) {
+            self._timerSetting = timerSetting
+            self.timerConfig = .makeIdle(timerSetting.wrappedValue)
+        }
+        
         
         var elapsedTime: TimeInterval {
             guard let ongoingSession = ongoingSession else {
                 return 0
             }
-            return currentTime.timeIntervalSince(ongoingSession.startAt)
+            return Date.now.timeIntervalSince(ongoingSession.startAt)
         }
         
         var timerState: TimerState {
             guard let ongoingSession = ongoingSession else {
-                return .initial(
-                    timerConfig: TimerRingView.Config.init(
-                        isOngoing: false,
-                        progress: 1,
-                        timerInterval: timerSetting.sessionTimeInterval,
-                        hasFinishedCountDown: false
-                    )
-                )
+                return .initial
             }
-            let isCountUp = timerSetting.timerType == .countup
-            
             switch ongoingSession.sessionType {
             case .work:
-                if isCountUp {
-                    // カウントアップの場合
-                    let timerInterval = elapsedTime
-                    let progress = min(timerInterval / timerSetting.sessionTimeInterval, 1)
-                    
-                    return .work(
-                        timerConfig: TimerRingView.Config(
-                            isOngoing: true,
-                            progress: CGFloat(progress),
-                            timerInterval: timerInterval,
-                            hasFinishedCountDown: false
-                        )
-                    )
-                } else {
-                    // カウントダウンの場合
-                    let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
-                    if remainingTime <= 0 {
-                        // カウントダウンが終了した場合、カウントアップに切り替える
-                        let newTimerInterval = abs(remainingTime)
-                        let progress = min(newTimerInterval / timerSetting.sessionTimeInterval, 1)
-                        
-                        return .work(
-                            timerConfig: TimerRingView.Config(
-                                isOngoing: true,
-                                progress: CGFloat(progress),
-                                timerInterval: newTimerInterval,
-                                hasFinishedCountDown: true
-                            )
-                        )
-                    } else {
-                        // カウントダウン中
-                        let progress = max(remainingTime / timerSetting.sessionTimeInterval, 0)
-                        
-                        return .work(
-                            timerConfig: TimerRingView.Config(
-                                isOngoing: true,
-                                progress: CGFloat(progress),
-                                timerInterval: remainingTime,
-                                hasFinishedCountDown: false
-                            )
-                        )
-                    }
-                }
+                return .work
             case .break:
-                // 休憩時は常にカウントダウン
-                let remainingTime = timerSetting.shortBreakTimeInterval - elapsedTime
-                let clampedTime = max(remainingTime, 0)
-                let progress = clampedTime > 0 ? CGFloat(clampedTime / Double(timerSetting.shortBreakTimeInterval)) : 0.0
-                
-                return .workBreak(
-                    timerConfig: TimerRingView.Config(
-                        isOngoing: true,
-                        progress: progress,
-                        timerInterval: clampedTime,
-                        hasFinishedCountDown: false
-                    )
-                )
+                return .workBreak
             }
         }
         
         enum TimerState: Equatable {
-            case initial(timerConfig: TimerRingView.Config)
-            case work(timerConfig: TimerRingView.Config)
-            case workBreak(timerConfig: TimerRingView.Config)
+            case initial
+            case work
+            case workBreak
             
             var isOngoingSession: Bool {
                 switch self {
@@ -105,11 +52,26 @@ struct Home {
                     return true
                 }
             }
+            
+            var isWorkSession: Bool {
+                switch self {
+                case .initial, .workBreak:
+                    return false
+                case .work:
+                    return true
+                }
+            }
         }
         
         struct ObserveResponse: Equatable {
             let ongoingSession: PomodoroSession?
             let timerSetting: TimerSetting
+        }
+        
+        struct ActionButtonConfig: Equatable {
+            let title: String
+            let shouldShow: Bool
+            let buttonColor: Color
         }
     }
     
@@ -126,11 +88,12 @@ struct Home {
         
         enum InternalAction {
             case observeResponse(TaskResult<State.ObserveResponse>)
-            case passedTime
+            case passedTime(PomodoroSession)
         }
     }
     
     @Dependency(\.coreDataClient) var coreDataClient
+    @Dependency(\.mainQueue) var mainQueue
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -154,21 +117,30 @@ struct Home {
                     }
                 }
             case .internal(.observeResponse(.success(let response))):
+                let didChangeToBreak: Bool = {
+                    state.ongoingSession?.sessionType == .work
+                    && response.ongoingSession?.sessionType == .break
+                }()
+                AppLogger.shared.log("didChangeToBreak: \(didChangeToBreak)", .debug)
                 state.ongoingSession = response.ongoingSession
                 state.timerSetting = response.timerSetting
-                if state.ongoingSession != nil {
-                    return .run { send in
+                guard let ongoingSession = response.ongoingSession else {
+                    state.timerConfig = .makeIdle(state.timerSetting)
+                    state.buttonConfig = .initilal()
+                    return .cancel(id: CancelID.timer)
+                }
+                return .run { send in
+                    for await _ in self.mainQueue.timer(interval: .seconds(1)) {
                         await send(
-                            .internal(.passedTime),
+                            .internal(.passedTime(ongoingSession)),
                             animation: .default
                         )
                     }
-                    .cancellable(id: CancelID.timer)
-                } else {
-                    return .cancel(id: CancelID.timer)
                 }
-            case .internal(.passedTime):
-                state.currentTime = .now
+                .cancellable(id: CancelID.timer)
+            case let .internal(.passedTime(ongoingSession)):
+                state.timerConfig = makeTimerConfig(ongoingSession, state: state)
+                state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
                 return .none
             case .internal:
                 return .none
@@ -191,6 +163,119 @@ struct Home {
         let result = try await (ongoingSession, timerSetting)
         return .init(ongoingSession: result.0, timerSetting: result.1)
     }
+    
+    private func makeTimerConfig(
+        _ ongoingSession: PomodoroSession,
+        state: State
+    ) -> TimerRingView.Config {
+        let timerSetting = state.timerSetting
+        let isCountUp = timerSetting.timerType == .countup
+        let elapsedTime = state.elapsedTime
+        
+        switch ongoingSession.sessionType {
+        case .work:
+            if isCountUp {
+                // カウントアップの場合
+                let timerInterval = elapsedTime
+                let progress = min(timerInterval / timerSetting.sessionTimeInterval, 1)
+                
+                return TimerRingView.Config(
+                    isOngoing: true,
+                    progress: CGFloat(progress),
+                    timerInterval: timerInterval,
+                    hasFinishedCountDown: false
+                )
+            } else {
+                // カウントダウンの場合
+                let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
+                if remainingTime < 0 {
+                    // カウントダウンが終了した場合、カウントアップに切り替える
+                    let newTimerInterval = abs(remainingTime)
+                    let progress = min(newTimerInterval / timerSetting.sessionTimeInterval, 1)
+                    
+                    return TimerRingView.Config(
+                        isOngoing: true,
+                        progress: CGFloat(progress),
+                        timerInterval: newTimerInterval,
+                        hasFinishedCountDown: true
+                    )
+                } else {
+                    // カウントダウン中
+                    let progress = max(remainingTime / timerSetting.sessionTimeInterval, 0)
+                    return TimerRingView.Config(
+                        isOngoing: true,
+                        progress: CGFloat(progress),
+                        timerInterval: remainingTime,
+                        hasFinishedCountDown: false
+                    )
+                }
+            }
+        case .break:
+            // 休憩時は常にカウントダウン
+            let remainingTime = timerSetting.shortBreakTimeInterval - elapsedTime
+            if remainingTime < 0 {
+                // カウントダウンが終了した場合、カウントアップに切り替える
+                let newTimerInterval = abs(remainingTime)
+                let progress = min(newTimerInterval / timerSetting.shortBreakTimeInterval, 1)
+                
+                return TimerRingView.Config(
+                    isOngoing: true,
+                    progress: CGFloat(progress),
+                    timerInterval: newTimerInterval,
+                    hasFinishedCountDown: true
+                )
+            } else {
+                let progress = max(remainingTime / timerSetting.shortBreakTimeInterval, 0)
+                return TimerRingView.Config(
+                    isOngoing: true,
+                    progress: CGFloat(progress),
+                    timerInterval: remainingTime,
+                    hasFinishedCountDown: false
+                )
+            }
+        }
+    }
+    
+    private func makeButtonConfig(
+        _ ongoingSession: PomodoroSession,
+        state: State
+    ) -> State.ActionButtonConfig {
+        let timerSetting = state.timerSetting
+        let isCountUp = timerSetting.timerType == .countup
+        let elapsedTime = state.elapsedTime
+        switch ongoingSession.sessionType {
+        case .work:
+            if isCountUp {
+                return .init(
+                    title: "Break",
+                    shouldShow: true,
+                    buttonColor: .blue
+                )
+            } else {
+                let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
+                let hasFinieshedCountDown = remainingTime < 0
+                return .init(
+                    title: "Break",
+                    shouldShow: true,
+                    buttonColor: .blue
+                )
+            }
+        case .break:
+            return .init(
+                title: "Stop Break", shouldShow: true, buttonColor: .gray
+            )
+        }
+    }
+}
+
+extension Home.State.ActionButtonConfig {
+    static func initilal() -> Self {
+        .init(
+            title: "Start",
+            shouldShow: true,
+            buttonColor: .blue
+        )
+    }
 }
 
 struct HomeView: View {
@@ -201,20 +286,17 @@ struct HomeView: View {
                 let timerSize = min(420, proxy.size.width * 0.6)
                 let buttonSize = min(300, proxy.size.width * 0.4)
                 ZStack{
-                    switch store.timerState {
-                    case .initial(let config):
-                        VStack {
-                            TimerRingView(config: config)
+                    AuroraView()
+                        .opacity(store.timerState.isWorkSession ? 1 : 0)
+                    VStack {
+                        Button(action: {
+                        }) {
+                            TimerRingView(config: store.timerConfig)
                                 .frame(width: timerSize, height: timerSize)
-                            button(size: buttonSize)
                         }
-                    case .work(let config):
-                        AuroraView()
-                        TimerRingView(config: config)
-                            .frame(width: timerSize, height: timerSize)
-                    case .workBreak(let config):
-                        TimerRingView(config: config)
-                            .frame(width: timerSize, height: timerSize)
+                        .buttonStyle(ShrinkButtonStyle())
+                        
+                        button(size: buttonSize)
                     }
                 }
                 .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
@@ -226,26 +308,27 @@ struct HomeView: View {
     
     @ViewBuilder
     func button(size: CGFloat) -> some View {
-        VStack {
-            Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
-            Button {
-                
-            } label: {
-                Text("Start")
-                    .font(
-                        .system(
-                            size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
-                            weight: .bold
+        if store.buttonConfig.shouldShow {
+            VStack {
+                Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+                Button {
+                    
+                } label: {
+                    Text(store.buttonConfig.title)
+                        .font(
+                            .system(
+                                size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
+                                weight: .bold
+                            )
                         )
-                    )
-                    .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
-                    .foregroundStyle(.white)
-                    .background(.blue)
-                    .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
+                        .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+                        .foregroundStyle(.white)
+                        .background(store.buttonConfig.buttonColor)
+                        .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
+                }
+                .buttonStyle(ShrinkButtonStyle())
             }
-            .buttonStyle(ShrinkButtonStyle())
         }
-
     }
 }
 
