@@ -136,6 +136,8 @@ struct Home {
                     state.buttonConfig = .initilal()
                     return .cancel(id: CancelID.timer)
                 }
+                state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
+                state.timerConfig = makeTimerConfig(ongoingSession, state: state)
                 return .run { send in
                     for await _ in self.mainQueue.timer(interval: .seconds(1)) {
                         await send(
