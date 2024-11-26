@@ -84,6 +84,7 @@ struct Home {
 
         enum ViewAction {
             case onLoad
+            case didTapActionButton
         }
         
         enum InternalAction {
@@ -116,7 +117,13 @@ struct Home {
                         )
                     }
                 }
+            case .view(.didTapActionButton):
+                let sessions = makeSession(state: state)
+                return .run { send in
+                    try await coreDataClient.insertList(sessions)
+                }
             case .internal(.observeResponse(.success(let response))):
+                Task.cancel(id: CancelID.timer)
                 let didChangeToBreak: Bool = {
                     state.ongoingSession?.sessionType == .work
                     && response.ongoingSession?.sessionType == .break
@@ -261,9 +268,33 @@ struct Home {
                 )
             }
         case .break:
-            return .init(
-                title: "Stop Break", shouldShow: true, buttonColor: .gray
-            )
+            return .init(title: "Stop Break", shouldShow: true, buttonColor: .gray)
+        }
+    }
+    
+    private func makeSession(
+        state: State
+    ) -> [PomodoroSession] {
+        let tag = state.timerSetting.currentTag
+        guard var ongoingSession = state.ongoingSession else {
+            return [
+                PomodoroSession.makeNewWorkSession(tag)
+            ]
+        }
+        switch ongoingSession.sessionType {
+        case .work:
+            ongoingSession.endAt = .now
+            let nextBreakSession = PomodoroSession.makeNewBreakSession(tag)
+            return [
+                ongoingSession,
+                nextBreakSession
+            ]
+        case .break:
+            var finieshedSession = ongoingSession
+            finieshedSession.endAt = .now
+            return [
+                finieshedSession
+            ]
         }
     }
 }
@@ -312,7 +343,7 @@ struct HomeView: View {
             VStack {
                 Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
                 Button {
-                    
+                    store.send(.view(.didTapActionButton))
                 } label: {
                     Text(store.buttonConfig.title)
                         .font(

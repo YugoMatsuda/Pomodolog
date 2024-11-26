@@ -103,7 +103,7 @@ struct TimerRingView: View {
             .animation(.easeInOut, value: waveProgress)
             .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
             .onChange(of: config) { oldValue, newValue in
-                startWaveAnimation()
+//                startWaveAnimation()
             }
         }
     }

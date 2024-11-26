@@ -34,3 +34,35 @@ extension PomodoroSession {
         case `break`
     }
 }
+
+extension PomodoroSession {
+    static func makeNewWorkSession(
+        _ tag: Tag?
+    ) -> Self {
+        let now: Date = .now
+        return .init(
+            id: UUID().uuidString,
+            sessionType: .work,
+            tag: tag,
+            startAt: now,
+            endAt: nil,
+            createAt: now,
+            updateAt: now
+        )
+    }
+    
+    static func makeNewBreakSession(
+        _ tag: Tag?
+    ) -> Self {
+        let now: Date = .now
+        return .init(
+            id: UUID().uuidString,
+            sessionType: .break,
+            tag: tag,
+            startAt: now,
+            endAt: nil,
+            createAt: now,
+            updateAt: now
+        )
+    }
+}

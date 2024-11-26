@@ -39,6 +39,7 @@ extension CDTimerSetting: DomainConvertible {
             cdTimerSetting = CDTimerSetting(context: context)
             cdTimerSetting.id = TimerSetting.id()
         }
+        cdTimerSetting.sessionTimeMinutes = Int16(domain.sessionTimeMinutes)
         cdTimerSetting.timerType = domain.timerType.rawValue
         cdTimerSetting.shortBreakTimeMinutes = Int16(domain.shortBreakTimeMinutes)
         cdTimerSetting.longBreakMinutes = Int16(domain.longBreakTimeMinutes)
