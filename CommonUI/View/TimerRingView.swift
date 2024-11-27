@@ -60,12 +60,12 @@ struct TimerRingView: View {
             // MARK: Timer Ring
             ZStack{
                 Circle()
-                    .stroke(innserCircleBackground, lineWidth: 10)
+                    .stroke(innserCircleBackground, lineWidth: 4)
                     .scaleEffect(trimRingScale)
                 
                 Circle()
                     .trim(from: 0, to: config.progress)
-                    .stroke(Color.blue.gradient, lineWidth: 10)
+                    .stroke(Color.blue.gradient, lineWidth: 4)
                     .scaleEffect(trimRingScale)
                     .rotationEffect(.init(degrees: 270))
                 

@@ -296,7 +296,7 @@ struct HomeView: View {
     var body: some View {
             GeometryReader { proxy in
                 let timerSize = min(420, proxy.size.width * 0.6)
-                let buttonSize = min(300, proxy.size.width * 0.4)
+                let buttonSize = min(300, proxy.size.width * 0.35)
                 ZStack{
                     AuroraView()
                         .opacity(store.timerState.isWorkSession ? 1 : 0)
@@ -330,10 +330,10 @@ struct HomeView: View {
                         .font(
                             .system(
                                 size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
-                                weight: .bold
+                                weight: .regular
                             )
                         )
-                        .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+                        .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 40 : 70)
                         .foregroundStyle(.white)
                         .background(store.buttonConfig.buttonColor)
                         .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
