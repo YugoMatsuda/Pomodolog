@@ -6,6 +6,7 @@ import SwiftUI
 struct TimerSettingReducer {
     @ObservableState
     struct State: Equatable {
+        @Presents var destination: Destination.State?
         @Shared var timerSetting: TimerSetting
         var displayResult: DisplayResult = .loading
         
@@ -22,10 +23,12 @@ struct TimerSettingReducer {
         case delegate(DelegateAction)
         case binding(BindingAction<State>)
         case `internal`(InternalAction)
+        case destination(PresentationAction<Destination.Action>)
 
         enum ViewAction: Equatable {
             case onLoad
             case didTapTag(Tag)
+            case didTapAddTagButton
         }
         
         enum DelegateAction: Equatable {
@@ -60,6 +63,10 @@ struct TimerSettingReducer {
                 return .run { [state] _ in
                     try await coreDataClient.insert(state.timerSetting)
                 }
+            case .view(.didTapAddTagButton):
+                guard case let .success(tags) = state.displayResult else { return .none }
+                state.destination = .tagFormView(TagForm.State.init(mode: .add(sort: tags.count)))
+                return .none
             case let .internal(.observeResponse(.success(resp))):
                 state.displayResult = .success(resp)
                 return .none
@@ -73,12 +80,18 @@ struct TimerSettingReducer {
                 return .run { [state] _ in
                     try await coreDataClient.insert(state.timerSetting)
                 }
+            case .destination(.presented(.tagFormView(.delegate(.didSucceedSaveTag)))):
+                state.destination = nil
+                return .none
             case .binding:
                 return .none
             case .delegate:
-              return .none
+                return .none
+            case .destination:
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
     private func fetchEntity() async throws -> [Tag] {
@@ -88,6 +101,15 @@ struct TimerSettingReducer {
         )
     }
 }
+
+
+extension TimerSettingReducer {
+    @Reducer(state: .equatable)
+    enum Destination {
+        case tagFormView(TagForm)
+    }
+}
+
 
 struct TimerSettingView: View {
     @Bindable var store: StoreOf<TimerSettingReducer>
@@ -144,7 +166,7 @@ struct TimerSettingView: View {
                             }
                             
                             Button(action: {
-                                
+                                store.send(.view(.didTapAddTagButton))
                             }, label: {
                                 HStack {
                                     Spacer()
@@ -152,6 +174,16 @@ struct TimerSettingView: View {
                                 }
                                 .contentShape(Rectangle())
                             })
+                            .sheet(
+                                item: $store.scope(
+                                    state: \.destination?.tagFormView,
+                                    action: \.destination.tagFormView
+                                )
+                            ) { store in
+                                NavigationStack {
+                                    TagFormView(store: store)
+                                }
+                            }
                         }
                         
                     }
