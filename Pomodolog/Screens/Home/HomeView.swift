@@ -371,7 +371,6 @@ struct HomeView: View {
                     ) { store in
                         TimerSettingView(store: store)
                             .presentationDetents([
-                                .medium,
                                 .fraction(0.7),
                                 .large,
                             ])

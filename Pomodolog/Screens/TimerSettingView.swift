@@ -77,7 +77,7 @@ struct TimerSettingReducer {
     private func fetchEntity() async throws -> [Tag] {
         try await coreDataClient.fetchAll(
             Tag.self,
-            sortDescriptors: [SortDescriptorData(key: "createAt", ascending: false)]
+            sortDescriptors: [SortDescriptorData(key: "sort", ascending: true)]
         )
     }
 }
@@ -88,13 +88,60 @@ struct TimerSettingView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Timer") {
-                    Picker("Mode", selection: $store.timerSetting.timerType) {
-                        ForEach(TimerSetting.TimerType.allCases, id: \.self) {
-                            Text($0.title).tag($0)
+            Group {
+                switch store.displayResult {
+                case .success(let tags):
+                    Form {
+                        Section("Timer") {
+                            Picker("Mode", selection: $store.timerSetting.timerType) {
+                                ForEach(TimerSetting.TimerType.allCases, id: \.self) {
+                                    Text($0.title).tag($0)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            
+                            Picker("Session Time", selection: $store.timerSetting.sessionTimeMinutes) {
+                                ForEach(1...60, id: \.self) { minute in
+                                    Text("\(minute) min").tag(minute)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            
+                            Picker("Break Time", selection: $store.timerSetting.shortBreakTimeMinutes) {
+                                ForEach(1...30, id: \.self) { minute in
+                                    Text("\(minute) min").tag(minute)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                        }
+                        
+                        Section("Tag") {
+                            ForEach(tags) { tag in
+                                let tagId = tag.id
+                                let isSelectedTag = tagId == store.timerSetting.currentTag?.id
+                                Button {
+                                    
+                                } label: {
+                                    HStack {
+                                        TagItemView(tag: tag)
+                                        Spacer()
+                                        if isSelectedTag {
+                                            Image(systemName: "checkmark")
+                                                .foregroundStyle(.blue)
+                                                .font(.headline)
+                                        }
+                                    }
+                                    
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                     }
+                case .failure:
+                    Text("Failed to load tags")
+                    
+                case .loading:
+                    ProgressView()
                 }
             }
             .navigationTitle("Timer Setting")
