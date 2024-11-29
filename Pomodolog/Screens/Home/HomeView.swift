@@ -124,8 +124,13 @@ struct Home {
                     guard var ongoingSession = state.ongoingSession else {
                         return
                     }
-                    ongoingSession.endAt = .now
-                    try await coreDataClient.insert(ongoingSession)
+                    // 30秒以下の場合は記録しない
+                    if state.elapsedTime <= 30 {
+                        try await coreDataClient.deleteById(PomodoroSession.self, id: ongoingSession.id)
+                    } else {
+                        ongoingSession.endAt = .now
+                        try await coreDataClient.insert(ongoingSession)
+                    }
                 }
             case .internal(.observeResponse(.success(let response))):
                 Task.cancel(id: CancelID.timer)

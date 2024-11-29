@@ -43,15 +43,7 @@ struct TimerRingView: View {
     }
 
     private var innserCircleBackground: Color {
-        #if os(iOS)
-            if colorScheme == .dark {
-                return Color(UIColor.darkGray)
-            } else {
-                return Color(UIColor.systemGroupedBackground)
-            }
-        #else
-        return Color(UIColor.darkGray).opacity(0.4)
-        #endif
+        return Color(UIColor.darkGray)
     }
     
     var body: some View {
