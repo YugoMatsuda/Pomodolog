@@ -26,6 +26,10 @@ struct PomodoroSession: Identifiable, Equatable, Sendable {
         self.createAt = createAt
         self.updateAt = updateAt
     }
+    
+    var duration: TimeInterval {
+        endAt?.timeIntervalSince(startAt) ?? .zero
+    }
 }
 
 extension PomodoroSession {

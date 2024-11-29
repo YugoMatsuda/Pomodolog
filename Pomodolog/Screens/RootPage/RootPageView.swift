@@ -8,7 +8,8 @@ struct RootPage {
         @Shared var timerSettnig: TimerSetting
         var selectionPage: SelectionPage? = .home
         var home: Home.State
-        
+        var hilight: Hilight.State
+
         var isOngoingSession: Bool {
             home.timerState.isOngoingSession
         }
@@ -16,6 +17,7 @@ struct RootPage {
         init(timerSettnig: Shared<TimerSetting>) {
             self._timerSettnig = timerSettnig
             self.home = .init(timerSetting: timerSettnig)
+            self.hilight = .init()
         }
         
         enum SelectionPage: Int, Equatable,Hashable, CaseIterable {
@@ -29,6 +31,7 @@ struct RootPage {
         case view(ViewAction)
         case binding(BindingAction<State>)
         case home(Home.Action)
+        case hilight(Hilight.Action)
 
         enum ViewAction {
             case onAppear
@@ -39,6 +42,9 @@ struct RootPage {
         Scope(state: \.home, action: \.home) {
             Home()
         }
+        Scope(state: \.hilight, action: \.hilight) {
+            Hilight()
+        }
         BindingReducer()
         Reduce<State, Action> { state, action in
             switch action {
@@ -47,6 +53,8 @@ struct RootPage {
             case .binding:
                 return .none
             case .home:
+                return .none
+            case .hilight:
                 return .none
             }
         }
@@ -71,7 +79,9 @@ struct RootPageView: View {
                             )
                             .id(page)
                         case .hilight:
-                            HilightView()
+                            HilightView(
+                                store: store.scope(state: \.hilight, action: \.hilight)
+                            )
                                 .id(page)
                         }
                     }
