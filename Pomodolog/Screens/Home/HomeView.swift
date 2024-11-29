@@ -19,12 +19,32 @@ struct Home {
             self.timerConfig = .makeIdle(timerSetting.wrappedValue)
         }
         
-        
         var elapsedTime: TimeInterval {
             guard let ongoingSession = ongoingSession else {
                 return 0
             }
             return Date.now.timeIntervalSince(ongoingSession.startAt)
+        }
+        
+        var hasFinishedCountDonw: Bool {
+            guard timerSetting.timerType == .countDown,
+                  let ongoingSession = ongoingSession
+            else {
+                return true
+            }
+                let remainingTime: TimeInterval = {
+                    switch ongoingSession.sessionType {
+                    case .work:
+                        return timerSetting.sessionTimeInterval - elapsedTime
+                    case .break:
+                        return timerSetting.shortBreakTimeInterval - elapsedTime
+                    }
+                }()
+            return remainingTime < 0
+        }
+        
+        var shouldShowLongPressBachgound: Bool {
+            !hasFinishedCountDonw && timerState.isWorkSession
         }
         
         var timerState: TimerState {
@@ -184,7 +204,7 @@ struct Home {
             } else {
                 // カウントダウンの場合
                 let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
-                if remainingTime < 0 {
+                if state.hasFinishedCountDonw {
                     // カウントダウンが終了した場合、カウントアップに切り替える
                     let newTimerInterval = abs(remainingTime)
                     return TimerRingView.Config(
@@ -320,7 +340,7 @@ struct HomeView: View {
                         button(size: buttonSize)
                     }
                     
-                    if store.timerState.isWorkSession {
+                    if store.shouldShowLongPressBachgound {
                         LongPressBackgroundButtonView(longPressAction: {
                             store.send(.view(.didLongPressActionButton), animation: .default)
                         })
