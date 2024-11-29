@@ -26,6 +26,13 @@ struct Home {
             return Date.now.timeIntervalSince(ongoingSession.startAt)
         }
         
+        var navigationTitle: String {
+            guard let ongoingSession = ongoingSession, timerState.isWorkSession else {
+                return ""
+            }
+            return ongoingSession.tag?.name ?? ""
+        }
+        
         var hasFinishedCountDonw: Bool {
             guard timerSetting.timerType == .countDown,
                   let ongoingSession = ongoingSession
@@ -328,34 +335,43 @@ struct HomeView: View {
     @Bindable var store: StoreOf<Home>
     
     var body: some View {
-            GeometryReader { proxy in
-                let timerSize = min(420, proxy.size.width * 0.6)
-                let buttonSize = min(300, proxy.size.width * 0.35)
-                ZStack{
-                    AuroraView()
-                        .opacity(store.timerState.isWorkSession ? 1 : 0)
-                    VStack {
-                        Button(action: {
-                        }) {
-                            TimerRingView(config: store.timerConfig)
-                                .frame(width: timerSize, height: timerSize)
-                        }
-                        .buttonStyle(ShrinkButtonStyle())
+        GeometryReader { proxy in
+            let timerSize = min(420, proxy.size.width * 0.6)
+            let buttonSize = min(300, proxy.size.width * 0.35)
+            ZStack{
+                AuroraView()
+                    .opacity(store.timerState.isWorkSession ? 1 : 0)
+                VStack {
+                    Text(store.navigationTitle)
+                        .foregroundStyle(.white)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .padding()
                         
-                        button(size: buttonSize)
+                    Spacer()
+                    Button(action: {
+                    }) {
+                        TimerRingView(config: store.timerConfig)
+                            .frame(width: timerSize, height: timerSize)
                     }
+                    .buttonStyle(ShrinkButtonStyle())
                     
-                    if store.shouldShowLongPressBachgound {
-                        LongPressBackgroundButtonView(longPressAction: {
-                            store.send(.view(.didLongPressActionButton), animation: .default)
-                        })
-                    }
+                    button(size: buttonSize)
+                    
+                    Spacer()
                 }
-                .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
+                
+                if store.shouldShowLongPressBachgound {
+                    LongPressBackgroundButtonView(longPressAction: {
+                        store.send(.view(.didLongPressActionButton), animation: .default)
+                    })
+                }
             }
-            .onLoad {
-                store.send(.view(.onLoad))
-            }
+            .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
+        }
+        .onLoad {
+            store.send(.view(.onLoad))
+        }
     }
     
     @ViewBuilder
