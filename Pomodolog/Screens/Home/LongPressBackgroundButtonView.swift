@@ -36,7 +36,10 @@ struct LongPressBackgroundButtonView: View {
             Color.clear.contentShape(Rectangle())
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
-                .onLongPressGesture(minimumDuration: TimerConst.duration, perform: {
+                .onLongPressGesture(
+                    minimumDuration: TimerConst.duration,
+                    maximumDistance: 1000,
+                    perform: {
                     longPressAction()
                 }, onPressingChanged: { isHolding in
                     withAnimation {
@@ -46,6 +49,7 @@ struct LongPressBackgroundButtonView: View {
                             self.longPressProgress = 0
                         }
                     }
+                    guard isHolding else { return }
                     startTimer()
                 })
         }

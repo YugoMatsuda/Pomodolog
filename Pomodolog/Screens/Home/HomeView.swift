@@ -134,7 +134,7 @@ struct Home {
                     try await coreDataClient.insertList(sessions)
                 }
             case .view(.didLongPressActionButton):
-                return .run { [state] send in
+                return .run(priority: .high) { [state] send in
                     guard var ongoingSession = state.ongoingSession else {
                         return
                     }
@@ -390,7 +390,7 @@ struct HomeView: View {
                 
                 if store.shouldShowLongPressBachgound {
                     LongPressBackgroundButtonView(color: store.currentTagColor, longPressAction: {
-                        store.send(.view(.didLongPressActionButton), animation: .default)
+                        store.send(.view(.didLongPressActionButton))
                     })
                 }
             }
