@@ -7,6 +7,7 @@ struct Home {
     @ObservableState
     struct State: Equatable {
         @Shared var timerSetting: TimerSetting
+        @Presents var destination: Destination.State?
         var timerConfig: TimerRingView.Config
         var buttonConfig: ActionButtonConfig = .initilal()
 
@@ -84,11 +85,13 @@ struct Home {
         case view(ViewAction)
         case binding(BindingAction<State>)
         case `internal`(InternalAction)
+        case destination(PresentationAction<Destination.Action>)
 
         enum ViewAction {
             case onLoad
             case didTapActionButton
             case didLongPressActionButton
+            case didTapTimerRing
         }
         
         enum InternalAction {
@@ -139,6 +142,13 @@ struct Home {
                         try await coreDataClient.insert(ongoingSession)
                     }
                 }
+            case .view(.didTapTimerRing):
+                state.destination = .timerSettingView(
+                    TimerSettingReducer.State.init(
+                        timerSetting: state.$timerSetting
+                    )
+                )
+                return .none
             case .internal(.observeResponse(.success(let response))):
                 Task.cancel(id: CancelID.timer)
                 let didChangeToBreak: Bool = {
@@ -170,10 +180,13 @@ struct Home {
                 return .none
             case .internal:
                 return .none
+            case .destination:
+                return .none
             case .binding:
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
     private func fetchEntity() async throws -> State.ObserveResponse {
@@ -321,6 +334,13 @@ struct Home {
     }
 }
 
+extension Home {
+    @Reducer(state: .equatable)
+    enum Destination {
+        case timerSettingView(TimerSettingReducer)
+    }
+}
+
 extension Home.State.ActionButtonConfig {
     static func initilal() -> Self {
         .init(
@@ -350,11 +370,26 @@ struct HomeView: View {
                         
                     Spacer()
                     Button(action: {
+                        store.send(.view(.didTapTimerRing))
                     }) {
                         TimerRingView(config: store.timerConfig)
                             .frame(width: timerSize, height: timerSize)
                     }
                     .buttonStyle(ShrinkButtonStyle())
+                    .disabled(store.timerState.isOngoingSession)
+                    .sheet(
+                        item: $store.scope(
+                            state: \.destination?.timerSettingView,
+                            action: \.destination.timerSettingView
+                        )
+                    ) { store in
+                        TimerSettingView(store: store)
+                            .presentationDetents([
+                                .medium,
+                                .fraction(0.7),
+                                .large,
+                            ])
+                    }
                     
                     button(size: buttonSize)
                     
