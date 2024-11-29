@@ -25,6 +25,7 @@ struct TimerSettingReducer {
 
         enum ViewAction: Equatable {
             case onLoad
+            case didTapTag(Tag)
         }
         
         enum DelegateAction: Equatable {
@@ -54,10 +55,16 @@ struct TimerSettingReducer {
                 } catch: { error, send in
                     await send(.internal(.observeResponse(.failure(error))))
                 }
+            case .view(.didTapTag(let tag)):
+                state.timerSetting.currentTag = tag
+                return .run { [state] _ in
+                    try await coreDataClient.insert(state.timerSetting)
+                }
             case let .internal(.observeResponse(.success(resp))):
                 state.displayResult = .success(resp)
                 return .none
             case let .internal(.observeResponse(.failure(error))):
+                AppLogger.shared.log("observeResponse error: \(error)", .crit)
                 state.displayResult = .failure
                 return .none
             case .internal:
@@ -120,7 +127,7 @@ struct TimerSettingView: View {
                                 let tagId = tag.id
                                 let isSelectedTag = tagId == store.timerSetting.currentTag?.id
                                 Button {
-                                    
+                                    store.send(.view(.didTapTag(tag)))
                                 } label: {
                                     HStack {
                                         TagItemView(tag: tag)
@@ -131,7 +138,7 @@ struct TimerSettingView: View {
                                                 .font(.headline)
                                         }
                                     }
-                                    
+                                    .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
                             }

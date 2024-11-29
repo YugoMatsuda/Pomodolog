@@ -9,7 +9,7 @@ struct Home {
         @Shared var timerSetting: TimerSetting
         @Presents var destination: Destination.State?
         var timerConfig: TimerRingView.Config
-        var buttonConfig: ActionButtonConfig = .initilal()
+        var buttonConfig: ActionButtonConfig
 
         var ongoingSession: PomodoroSession?
         
@@ -18,6 +18,7 @@ struct Home {
         ) {
             self._timerSetting = timerSetting
             self.timerConfig = .makeIdle(timerSetting.wrappedValue)
+            self.buttonConfig = .initilal(timerSetting.wrappedValue)
         }
         
         var elapsedTime: TimeInterval {
@@ -64,6 +65,10 @@ struct Home {
             case .break:
                 return .workBreak
             }
+        }
+        
+        var currentTagColor: Color {
+            Color(hex: timerSetting.currentTag?.colorHex ?? "") ?? .blue
         }
         
         struct ObserveResponse: Equatable {
@@ -159,7 +164,7 @@ struct Home {
                 state.timerSetting = response.timerSetting
                 guard let ongoingSession = response.ongoingSession else {
                     state.timerConfig = .makeIdle(state.timerSetting)
-                    state.buttonConfig = .initilal()
+                    state.buttonConfig = .initilal(state.timerSetting)
                     return .cancel(id: CancelID.timer)
                 }
                 state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
@@ -281,15 +286,16 @@ struct Home {
         _ ongoingSession: PomodoroSession,
         state: State
     ) -> State.ActionButtonConfig {
+        let color = Color(hex: ongoingSession.tag?.colorHex ?? "") ?? .blue
         switch ongoingSession.sessionType {
         case .work:
             return .init(
                 title: "Break",
                 shouldShow: state.hasFinishedSessionTime,
-                buttonColor: .blue
+                buttonColor: color
             )
         case .break:
-            return .init(title: "Stop Break", shouldShow: true, buttonColor: .gray)
+            return .init(title: "Stop Break", shouldShow: true, buttonColor: color)
         }
     }
     
@@ -328,11 +334,12 @@ extension Home {
 }
 
 extension Home.State.ActionButtonConfig {
-    static func initilal() -> Self {
-        .init(
+    static func initilal(_ timerSetting: TimerSetting) -> Self {
+        let color: Color = Color(hex: timerSetting.currentTag?.colorHex ?? "") ?? Color.blue
+        return .init(
             title: "Start",
             shouldShow: true,
-            buttonColor: .blue
+            buttonColor: color
         )
     }
 }
@@ -345,7 +352,7 @@ struct HomeView: View {
             let timerSize = min(420, proxy.size.width * 0.6)
             let buttonSize = min(300, proxy.size.width * 0.35)
             ZStack{
-                AuroraView()
+                AuroraView(color: store.currentTagColor)
                     .opacity(store.timerState.isWorkSession ? 1 : 0)
                 VStack {
                     Text(store.navigationTitle)
@@ -382,7 +389,7 @@ struct HomeView: View {
                 }
                 
                 if store.shouldShowLongPressBachgound {
-                    LongPressBackgroundButtonView(longPressAction: {
+                    LongPressBackgroundButtonView(color: store.currentTagColor, longPressAction: {
                         store.send(.view(.didLongPressActionButton), animation: .default)
                     })
                 }

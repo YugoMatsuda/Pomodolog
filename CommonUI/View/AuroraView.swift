@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct AuroraView: View {
     
@@ -8,8 +9,19 @@ struct AuroraView: View {
         static let blurRadius: CGFloat = 130
     }
     
-    @State private var timer = Timer.publish(every: AnimationProperties.timerDuration, on: .main, in: .common).autoconnect()
-    @StateObject private var animator = CircleAnimator(color: .blue)
+    // 親から渡される color を通常のプロパティとして定義
+    let color: Color
+    
+    // CircleAnimator を @State で管理
+    @State private var animator: CircleAnimator
+    @State private var timer: Publishers.Autoconnect<Timer.TimerPublisher>
+    
+    // カスタムイニシャライザで animator と timer を初期化
+    init(color: Color) {
+        self.color = color
+        self._animator = State(initialValue: CircleAnimator(color: color))
+        self._timer = State(initialValue: Timer.publish(every: AnimationProperties.timerDuration, on: .main, in: .common).autoconnect())
+    }
     
     var body: some View {
         ZStack {
@@ -18,18 +30,22 @@ struct AuroraView: View {
                     MovingCircle(originOffset: circle.position)
                         .foregroundColor(circle.color)
                 }
-            }.blur(radius: AnimationProperties.blurRadius)
+            }
+            .blur(radius: AnimationProperties.blurRadius)
         }
-        .background(.black)
+        .background(Color.black)
+        .onAppear {
+            animateCircles()
+        }
         .onDisappear {
             timer.upstream.connect().cancel()
         }
-        .onAppear {
-            animateCircles()
-            timer = Timer.publish(every: AnimationProperties.timerDuration, on: .main, in: .common).autoconnect()
-        }
         .onReceive(timer) { _ in
             animateCircles()
+        }
+        // 親から渡された color の変更を監視
+        .onChange(of: color) { _, newColor in
+            animator.updateCirclesColor(newColor)
         }
     }
     
@@ -59,14 +75,14 @@ private struct MovingCircle: Shape {
         let adjustedX = rect.width * originOffset.x
         let adjustedY = rect.height * originOffset.y
         let smallestDimension = min(rect.width, rect.height)
-        path.addArc(center: CGPoint(x: adjustedX, y: adjustedY), radius: smallestDimension/2, startAngle: .zero, endAngle: .degrees(360), clockwise: true)
+        path.addArc(center: CGPoint(x: adjustedX, y: adjustedY), radius: smallestDimension / 2, startAngle: .zero, endAngle: .degrees(360), clockwise: true)
         return path
     }
 }
 
 private class CircleAnimator: ObservableObject {
     class Circle: Identifiable {
-        internal init(position: CGPoint, color: Color) {
+        init(position: CGPoint, color: Color) {
             self.position = position
             self.color = color
         }
@@ -76,23 +92,42 @@ private class CircleAnimator: ObservableObject {
     }
     
     @Published private(set) var circles: [Circle] = []
+    private(set) var color: Color
     
-    
-    init(color: Color) {
-        let colors = [
+    var colors: [Color] {
+        return [
             color,
             color.opacity(0.6),
             color.opacity(0.3),
         ]
-        circles = colors.map({ color in
-            Circle(position: CircleAnimator.generateRandomPosition(), color: color)
-        })
     }
     
+    init(color: Color) {
+        self.color = color
+        self.circles = colors.map { color in
+            Circle(position: CircleAnimator.generateRandomPosition(), color: color)
+        }
+    }
+    
+    // 円の色のみを更新
+    func updateCirclesColor(_ newColor: Color) {
+        self.color = newColor
+        let newColors = [
+            newColor,
+            newColor.opacity(0.6),
+            newColor.opacity(0.3),
+        ]
+        for (index, circle) in circles.enumerated() {
+            if index < newColors.count {
+                circles[index] = Circle(position: circle.position, color: newColors[index])
+            }
+        }
+    }
+    
+    // 円のポジションを更新
     func animate() {
-        objectWillChange.send()
-        for circle in circles {
-            circle.position = CircleAnimator.generateRandomPosition()
+        for index in circles.indices {
+            circles[index].position = CircleAnimator.generateRandomPosition()
         }
     }
     

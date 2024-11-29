@@ -8,6 +8,7 @@ struct LongPressBackgroundButtonView: View {
     @State private var longPressCount: CGFloat = 0
     @State private var timer: Timer?
     
+    let color: Color
     let longPressAction: () -> Void
 
     var body: some View {
@@ -19,6 +20,7 @@ struct LongPressBackgroundButtonView: View {
                     .frame(width: 200, height: 10)
                     .padding(.horizontal, 60)
                     .opacity(isHoldingClearButton ? 1 : 0)
+                    .tint(color)
                 
                 Text("Long press to finish session")
                     .foregroundStyle(.white)
