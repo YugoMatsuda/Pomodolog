@@ -122,7 +122,7 @@ struct TimerSettingView: View {
                             .pickerStyle(.menu)
                         }
                         
-                        Section("Tag") {
+                        Section("Tags") {
                             ForEach(tags) { tag in
                                 let tagId = tag.id
                                 let isSelectedTag = tagId == store.timerSetting.currentTag?.id
@@ -142,7 +142,18 @@ struct TimerSettingView: View {
                                 }
                                 .buttonStyle(.plain)
                             }
+                            
+                            Button(action: {
+                                
+                            }, label: {
+                                HStack {
+                                    Spacer()
+                                    Text("Add Tag")
+                                }
+                                .contentShape(Rectangle())
+                            })
                         }
+                        
                     }
                 case .failure:
                     Text("Failed to load tags")
