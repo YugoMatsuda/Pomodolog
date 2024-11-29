@@ -61,6 +61,7 @@ struct Home {
         enum ViewAction {
             case onLoad
             case didTapActionButton
+            case didLongPressActionButton
         }
         
         enum InternalAction {
@@ -97,6 +98,14 @@ struct Home {
                 let sessions = makeSession(state: state)
                 return .run { send in
                     try await coreDataClient.insertList(sessions)
+                }
+            case .view(.didLongPressActionButton):
+                return .run { [state] send in
+                    guard var ongoingSession = state.ongoingSession else {
+                        return
+                    }
+                    ongoingSession.endAt = .now
+                    try await coreDataClient.insert(ongoingSession)
                 }
             case .internal(.observeResponse(.success(let response))):
                 Task.cancel(id: CancelID.timer)
@@ -244,7 +253,7 @@ struct Home {
                 let hasFinieshedCountDown = remainingTime < 0
                 return .init(
                     title: "Break",
-                    shouldShow: true,
+                    shouldShow: hasFinieshedCountDown,
                     buttonColor: .blue
                 )
             }
@@ -292,7 +301,7 @@ extension Home.State.ActionButtonConfig {
 
 struct HomeView: View {
     @Bindable var store: StoreOf<Home>
-
+    
     var body: some View {
             GeometryReader { proxy in
                 let timerSize = min(420, proxy.size.width * 0.6)
@@ -309,6 +318,12 @@ struct HomeView: View {
                         .buttonStyle(ShrinkButtonStyle())
                         
                         button(size: buttonSize)
+                    }
+                    
+                    if store.timerState.isWorkSession {
+                        LongPressBackgroundButtonView(longPressAction: {
+                            store.send(.view(.didLongPressActionButton), animation: .default)
+                        })
                     }
                 }
                 .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
