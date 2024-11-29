@@ -166,7 +166,7 @@ extension TimerRingView.Config {
     static func makeIdle(_ timerSetting: TimerSetting) -> TimerRingView.Config {
         .init(
             progress: 1,
-            timerInterval: timerSetting.sessionTimeInterval,
+            timerInterval: timerSetting.timerType == .countDown ? timerSetting.sessionTimeInterval : 0,
             hasFinishedCountDown: false,
             timerState: .initial,
             currentTag: .focus()

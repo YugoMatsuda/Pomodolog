@@ -62,6 +62,10 @@ struct TimerSettingReducer {
                 return .none
             case .internal:
                 return .none
+            case .binding(\.timerSetting):
+                return .run { [state] _ in
+                    try await coreDataClient.insert(state.timerSetting)
+                }
             case .binding:
                 return .none
             case .delegate:
@@ -85,7 +89,13 @@ struct TimerSettingView: View {
     var body: some View {
         NavigationStack {
             Form {
-                
+                Section("Timer") {
+                    Picker("Mode", selection: $store.timerSetting.timerType) {
+                        ForEach(TimerSetting.TimerType.allCases, id: \.self) {
+                            Text($0.title).tag($0)
+                        }
+                    }
+                }
             }
             .navigationTitle("Timer Setting")
             .navigationBarTitleDisplayMode(.inline)

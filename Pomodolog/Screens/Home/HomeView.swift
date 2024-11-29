@@ -34,9 +34,8 @@ struct Home {
             return ongoingSession.tag?.name ?? ""
         }
         
-        var hasFinishedCountDonw: Bool {
-            guard timerSetting.timerType == .countDown,
-                  let ongoingSession = ongoingSession
+        var hasFinishedSessionTime: Bool {
+            guard let ongoingSession = ongoingSession
             else {
                 return true
             }
@@ -52,7 +51,7 @@ struct Home {
         }
         
         var shouldShowLongPressBachgound: Bool {
-            !hasFinishedCountDonw && timerState.isWorkSession
+            !hasFinishedSessionTime && timerState.isWorkSession
         }
         
         var timerState: TimerState {
@@ -222,14 +221,14 @@ struct Home {
                 return TimerRingView.Config(
                     progress: CGFloat(progress),
                     timerInterval: timerInterval,
-                    hasFinishedCountDown: false,
+                    hasFinishedCountDown: state.hasFinishedSessionTime,
                     timerState: state.timerState,
                     currentTag: tag
                 )
             } else {
                 // カウントダウンの場合
                 let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
-                if state.hasFinishedCountDonw {
+                if state.hasFinishedSessionTime {
                     // カウントダウンが終了した場合、カウントアップに切り替える
                     let newTimerInterval = abs(remainingTime)
                     return TimerRingView.Config(
@@ -282,26 +281,13 @@ struct Home {
         _ ongoingSession: PomodoroSession,
         state: State
     ) -> State.ActionButtonConfig {
-        let timerSetting = state.timerSetting
-        let isCountUp = timerSetting.timerType == .countup
-        let elapsedTime = state.elapsedTime
         switch ongoingSession.sessionType {
         case .work:
-            if isCountUp {
-                return .init(
-                    title: "Break",
-                    shouldShow: true,
-                    buttonColor: .blue
-                )
-            } else {
-                let remainingTime = timerSetting.sessionTimeInterval - elapsedTime
-                let hasFinieshedCountDown = remainingTime < 0
-                return .init(
-                    title: "Break",
-                    shouldShow: hasFinieshedCountDown,
-                    buttonColor: .blue
-                )
-            }
+            return .init(
+                title: "Break",
+                shouldShow: state.hasFinishedSessionTime,
+                buttonColor: .blue
+            )
         case .break:
             return .init(title: "Stop Break", shouldShow: true, buttonColor: .gray)
         }

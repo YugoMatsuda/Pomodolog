@@ -39,12 +39,21 @@ struct TimerSetting: Equatable, Sendable {
 }
 
 extension TimerSetting {
-    enum TimerType: String, Equatable, Codable {
+    enum TimerType: String, Equatable, Codable, CaseIterable {
         case countup
         case countDown
         
         static func initial() -> TimerType {
             .countDown
+        }
+        
+        var title: String {
+            switch self {
+            case .countup:
+                return "Count Up"
+            case .countDown:
+                return "Count Down"
+            }
         }
     }
 }
