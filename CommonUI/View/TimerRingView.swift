@@ -90,6 +90,18 @@ struct TimerRingView: View {
                 
             case .breakSession(let data):
                 VStack(spacing: 16) {
+                    let text = data.hasFinishedCountDown ? "+" : ""
+                    Text(text + data.timerInterval.timerText)
+                        .font(
+                            .system(
+                                size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                weight: .bold
+                            )
+                        )
+                        .monospacedDigit()
+                        .contentTransition(.numericText(value: data.timerInterval))
+                        .animation(.snappy, value: data.timerInterval.timerText)
+                    
                     let orbSize: CGFloat = circleSize * 0.6
                     OrbView(configuration:
                             .init(
@@ -102,18 +114,6 @@ struct TimerRingView: View {
                             )
                     )
                     .frame(width: orbSize, height: orbSize)
-                    
-                    let text = data.hasFinishedCountDown ? "+" : ""
-                    Text(text + data.timerInterval.timerText)
-                        .font(
-                            .system(
-                                size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                                weight: .bold
-                            )
-                        )
-                        .monospacedDigit()
-                        .contentTransition(.numericText(value: data.timerInterval))
-                        .animation(.snappy, value: data.timerInterval.timerText)
                 }
             }
         }

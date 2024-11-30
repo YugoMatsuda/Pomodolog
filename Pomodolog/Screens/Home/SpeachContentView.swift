@@ -13,9 +13,14 @@ struct SpeachContent {
         }
         
         enum DisplayResult: Equatable {
-            case success(String)
+            case success(SpeachContentParam)
             case failure
             case loading
+        }
+        
+        struct SpeachContentParam: Equatable {
+            let text: String
+            let color: Color
         }
     }
     
@@ -59,14 +64,31 @@ struct SpeachContentView: View {
     @Bindable var store: StoreOf<SpeachContent>
 
     var body: some View {
-        switch store.displayResult {
-        case .success(let text):
-            Text(text)
-        case .failure:
-            Text("Failed to genrerate words.")
-        case .loading:
-            ProgressView()
+        Group {
+            switch store.displayResult {
+            case .success(let param):
+                VStack {
+                    Text(param.text)
+                        .font(
+                            .system(
+                                size: UIDevice.current.userInterfaceIdiom == .phone ? 25 : 50,
+                                weight: .regular
+                            )
+                        )
+                        .multilineTextAlignment(.center)
+                        .animation(.easeInOut(duration: 0.5), value: store.displayResult)
+                        .contentTransition(.opacity)
+                }
+                .padding()
+            case .failure:
+                Text("Failed to genrerate words.")
+                    .padding()
+            case .loading:
+                ProgressView()
+                    .padding()
+            }
         }
+
     }
 }
 

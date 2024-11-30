@@ -9,7 +9,8 @@ struct Home {
         @Shared var timerSetting: TimerSetting
         @Presents var destination: Destination.State?
         var timerRingParam: TimerRingView.TimerRingParam
-
+        var speachContent: SpeachContent.State?
+        
         var ongoingSession: PomodoroSession?
         
         init(
@@ -17,6 +18,7 @@ struct Home {
         ) {
             self._timerSetting = timerSetting
             self.timerRingParam = .makeIdle(timerSetting.wrappedValue)
+            self.speachContent = nil
         }
         
         var elapsedTime: TimeInterval {
@@ -95,6 +97,7 @@ struct Home {
         case binding(BindingAction<State>)
         case `internal`(InternalAction)
         case destination(PresentationAction<Destination.Action>)
+        case speachContent(SpeachContent.Action)
 
         enum ViewAction {
             case onLoad
@@ -106,12 +109,15 @@ struct Home {
         enum InternalAction {
             case observeResponse(TaskResult<State.ObserveResponse>)
             case passedTime(PomodoroSession)
+            case didRecieveGeneratedWord(String)
         }
     }
     
     @Dependency(\.coreDataClient) var coreDataClient
+    @Dependency(\.speechSynthesizerClient) var speechSynthesizerClient
     @Dependency(\.mainQueue) var mainQueue
-
+    @Dependency(\.continuousClock) var clock
+    
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce<State, Action> { state, action in
@@ -168,24 +174,50 @@ struct Home {
                     return didChangedToBreak || inBreakSession
                 }()
                 AppLogger.shared.log("shouldFetchPraiseWord: \(shouldFetchPraiseWord)", .debug)
+                if shouldFetchPraiseWord {
+                    state.speachContent = .init(displayResult: .loading)
+                }
+                
                 state.ongoingSession = response.ongoingSession
                 state.timerSetting = response.timerSetting
                 guard let ongoingSession = response.ongoingSession else {
                     state.timerRingParam = .makeIdle(state.timerSetting)
+                    state.speachContent = nil
                     return .cancel(id: CancelID.timer)
                 }
                 state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
-                return .run { send in
-                    for await _ in self.mainQueue.timer(interval: .seconds(0.1)) {
+                return .merge(
+                    .run { send in
+                        for await _ in self.mainQueue.timer(interval: .seconds(0.1)) {
+                            await send(
+                                .internal(.passedTime(ongoingSession)),
+                                animation: .default
+                            )
+                        }
+                    }.cancellable(id: CancelID.timer),
+                    .run { send in
+                        guard shouldFetchPraiseWord else { return }
+                        try await self.clock.sleep(for: .seconds(1))
                         await send(
-                            .internal(.passedTime(ongoingSession)),
-                            animation: .default
-                        )
+                            .internal(.didRecieveGeneratedWord(Const.praiseWord)), animation: .default)
                     }
-                }
-                .cancellable(id: CancelID.timer)
+                )
             case let .internal(.passedTime(ongoingSession)):
                 state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
+                return .none
+            case .internal(.didRecieveGeneratedWord(let word)):
+                AppLogger.shared.log("didRecieveGeneratedWord: \(word)", .debug)
+                state.speachContent = .init(
+                    displayResult: .success(
+                        .init(
+                            text: word,
+                            color: .blue
+                        )
+                    )
+                )
+                speechSynthesizerClient.startSpeaking(.init(text: word))
+                return .none
+            case .speachContent:
                 return .none
             case .internal:
                 return .none
@@ -196,6 +228,9 @@ struct Home {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.speachContent, action: \.speachContent) {
+            SpeachContent()
+        }
     }
     
     private func fetchEntity() async throws -> State.ObserveResponse {
@@ -345,13 +380,14 @@ struct HomeView: View {
                             .foregroundStyle(.white)
                             .font(.title3)
                             .fontWeight(.semibold)
-                            .padding()
+                            .padding(.horizontal)
                         Spacer()
                     case .workBreak:
                         Text("Break")
                             .font(.title3)
                             .fontWeight(.semibold)
-                            .padding()
+                            .padding(.horizontal)
+                        Spacer().frame(height: 12)
                     }
 
                     Button(action: {
@@ -372,6 +408,10 @@ struct HomeView: View {
                                 .fraction(0.7),
                                 .large,
                             ])
+                    }
+                    
+                    if let store = self.store.scope(state: \.speachContent, action: \.speachContent) {
+                        SpeachContentView(store: store)
                     }
                     
                     button(size: buttonSize)
