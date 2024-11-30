@@ -320,6 +320,10 @@ extension Home {
     enum Destination {
         case timerSettingView(TimerSettingReducer)
     }
+    
+    enum Const {
+        static let praiseWord = "I'd almost want to crown you with the title of Pomodoro Master!"
+    }
 }
 
 struct HomeView: View {
