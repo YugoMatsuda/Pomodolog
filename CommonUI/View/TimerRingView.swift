@@ -7,18 +7,18 @@ struct TimerRingView: View {
     @Environment(\.colorScheme) var colorScheme
     
     let param: TimerRingParam
+    let circleSize: CGFloat
     
     private var innserCircleBackground: Color {
         return Color(UIColor.darkGray)
     }
     
     var body: some View {
-        GeometryReader{ proxy in
-            let circleSize =  proxy.size.width
-            Group {
-                ZStack {
-                    switch param {
-                    case .idle(let data):
+        Group {
+            ZStack {
+                switch param {
+                case .idle(let data):
+                    ZStack {
                         DotCircleView(timerColor: param.timerColor)
                             .transition(.scale)
                             .scaleEffect(1.05)
@@ -44,7 +44,11 @@ struct TimerRingView: View {
                                 .contentTransition(.numericText(value: data.timerInterval))
                                 .animation(.snappy, value: data.timerInterval.timerText)
                         }
-                    case .workSession(let data):
+                    }
+                    .frame(width: circleSize, height: circleSize)
+            
+                case .workSession(let data):
+                    ZStack {
                         Circle()
                             .stroke(innserCircleBackground, lineWidth: 4)
                             .transition(.scale)
@@ -103,30 +107,30 @@ struct TimerRingView: View {
                                 .contentTransition(.numericText(value: data.timerInterval))
                                 .animation(.snappy, value: data.timerInterval.timerText)
                         }
-                        
-                    case .breakSession(let data):
-                        VStack(spacing: 0) {
-                            let text = data.hasFinishedCountDown ? "+" : ""
-                            Text(text + data.timerInterval.timerText)
-                                .font(
-                                    .system(
-                                        size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                                        weight: .bold
-                                    )
+                    }
+                    .frame(width: circleSize, height: circleSize)
+                    
+                case .breakSession(let data):
+                    VStack(spacing: 0) {
+                        let text = data.hasFinishedCountDown ? "+" : ""
+                        Text(text + data.timerInterval.timerText)
+                            .font(
+                                .system(
+                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                    weight: .bold
                                 )
-                                .monospacedDigit()
-                                .contentTransition(.numericText(value: data.timerInterval))
-                                .animation(.snappy, value: data.timerInterval.timerText)
-                        }
+                            )
+                            .monospacedDigit()
+                            .contentTransition(.numericText(value: data.timerInterval))
+                            .animation(.snappy, value: data.timerInterval.timerText)
                     }
                 }
             }
-            .onChange(of: param.isOngoingSession) { oldValue, newValue in
-                self.timer?.invalidate()
-                guard newValue else { return }
-                startWaveAnimation()
-            }
-            .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
+        }
+        .onChange(of: param.isOngoingSession) { oldValue, newValue in
+            self.timer?.invalidate()
+            guard newValue else { return }
+            startWaveAnimation()
         }
     }
     

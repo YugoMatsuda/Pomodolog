@@ -9,7 +9,6 @@ struct Home {
         @Shared var timerSetting: TimerSetting
         @Presents var destination: Destination.State?
         var timerRingParam: TimerRingView.TimerRingParam
-        var buttonConfig: ActionButtonConfig
 
         var ongoingSession: PomodoroSession?
         
@@ -18,7 +17,6 @@ struct Home {
         ) {
             self._timerSetting = timerSetting
             self.timerRingParam = .makeIdle(timerSetting.wrappedValue)
-            self.buttonConfig = .initilal(timerSetting.wrappedValue)
         }
         
         var elapsedTime: TimeInterval {
@@ -26,13 +24,6 @@ struct Home {
                 return 0
             }
             return Date.now.timeIntervalSince(ongoingSession.startAt)
-        }
-        
-        var navigationTitle: String {
-            guard let ongoingSession = ongoingSession, timerState.isWorkSession else {
-                return ""
-            }
-            return ongoingSession.tag?.name ?? ""
         }
         
         var hasFinishedSessionTime: Bool {
@@ -71,6 +62,21 @@ struct Home {
             Color(hex: timerSetting.currentTag?.colorHex ?? "") ?? .blue
         }
         
+        var actionButtonConfig: ActionButtonConfig? {
+            guard let ongoingSession = ongoingSession else {
+                return .init(title: "Start", buttonColor: Color(hex: timerSetting.currentTag?.colorHex ?? "") ?? .blue)
+            }
+
+            let color = Color(hex: ongoingSession.tag?.colorHex ?? "") ?? .blue
+            switch ongoingSession.sessionType {
+            case .work:
+                guard hasFinishedSessionTime else { return nil }
+                return ActionButtonConfig.init(title: "Break", buttonColor: color)
+            case .break:
+                return ActionButtonConfig.init(title: "Stop Break", buttonColor: color)
+            }
+        }
+        
         struct ObserveResponse: Equatable {
             let ongoingSession: PomodoroSession?
             let timerSetting: TimerSetting
@@ -78,7 +84,6 @@ struct Home {
         
         struct ActionButtonConfig: Equatable {
             let title: String
-            let shouldShow: Bool
             let buttonColor: Color
         }
     }
@@ -164,10 +169,8 @@ struct Home {
                 state.timerSetting = response.timerSetting
                 guard let ongoingSession = response.ongoingSession else {
                     state.timerRingParam = .makeIdle(state.timerSetting)
-                    state.buttonConfig = .initilal(state.timerSetting)
                     return .cancel(id: CancelID.timer)
                 }
-                state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
                 state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
                 return .run { send in
                     for await _ in self.mainQueue.timer(interval: .seconds(0.1)) {
@@ -180,7 +183,6 @@ struct Home {
                 .cancellable(id: CancelID.timer)
             case let .internal(.passedTime(ongoingSession)):
                 state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
-                state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
                 return .none
             case .internal:
                 return .none
@@ -283,23 +285,6 @@ struct Home {
         }
     }
     
-    private func makeButtonConfig(
-        _ ongoingSession: PomodoroSession,
-        state: State
-    ) -> State.ActionButtonConfig {
-        let color = Color(hex: ongoingSession.tag?.colorHex ?? "") ?? .blue
-        switch ongoingSession.sessionType {
-        case .work:
-            return .init(
-                title: "Break",
-                shouldShow: state.hasFinishedSessionTime,
-                buttonColor: color
-            )
-        case .break:
-            return .init(title: "Stop Break", shouldShow: true, buttonColor: color)
-        }
-    }
-    
     private func makeSession(
         state: State
     ) -> [PomodoroSession] {
@@ -334,17 +319,6 @@ extension Home {
     }
 }
 
-extension Home.State.ActionButtonConfig {
-    static func initilal(_ timerSetting: TimerSetting) -> Self {
-        let color: Color = Color(hex: timerSetting.currentTag?.colorHex ?? "") ?? Color.blue
-        return .init(
-            title: "Start",
-            shouldShow: true,
-            buttonColor: color
-        )
-    }
-}
-
 struct HomeView: View {
     @Bindable var store: StoreOf<Home>
     
@@ -356,18 +330,27 @@ struct HomeView: View {
                 AuroraView(color: store.currentTagColor)
                     .opacity(store.timerState.isWorkSession ? 1 : 0)
                 VStack {
-                    Text(store.navigationTitle)
-                        .foregroundStyle(.white)
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .padding()
-                        
-                    Spacer()
+                    switch store.timerState {
+                    case .initial:
+                        Spacer()
+                    case .work:
+                        Text(store.timerSetting.currentTag?.name ?? "")
+                            .foregroundStyle(.white)
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .padding()
+                        Spacer()
+                    case .workBreak:
+                        Text("Break")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .padding()
+                    }
+
                     Button(action: {
                         store.send(.view(.didTapTimerRing))
                     }) {
-                        TimerRingView(param: store.timerRingParam)
-                            .frame(width: timerSize, height: timerSize)
+                        TimerRingView(param: store.timerRingParam, circleSize: timerSize)
                     }
                     .buttonStyle(ShrinkButtonStyle())
                     .disabled(store.timerState.isOngoingSession)
@@ -404,13 +387,13 @@ struct HomeView: View {
     
     @ViewBuilder
     func button(size: CGFloat) -> some View {
-        if store.buttonConfig.shouldShow {
+        if let config = store.actionButtonConfig {
             VStack {
                 Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
                 Button {
                     store.send(.view(.didTapActionButton))
                 } label: {
-                    Text(store.buttonConfig.title)
+                    Text(config.title)
                         .font(
                             .system(
                                 size: UIDevice.current.userInterfaceIdiom == .phone ? 20 : 40,
@@ -419,7 +402,7 @@ struct HomeView: View {
                         )
                         .frame(width: size, height: UIDevice.current.userInterfaceIdiom == .phone ? 40 : 70)
                         .foregroundStyle(.white)
-                        .background(store.buttonConfig.buttonColor)
+                        .background(config.buttonColor)
                         .cornerRadius(UIDevice.current.userInterfaceIdiom == .phone ? 24 : 48)
                 }
                 .buttonStyle(ShrinkButtonStyle())
