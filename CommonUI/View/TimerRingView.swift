@@ -96,9 +96,9 @@ struct TimerRingView: View {
                                 backgroundColors: [
                                     param.timerColor,
                                     param.timerColor.opacity(0.6),
-                                    param.timerColor.opacity(0.3)
                                 ],
-                                glowColor: .white
+                                glowColor: param.timerColor.opacity(0.3),
+                                showParticles: false
                             )
                     )
                     .frame(width: orbSize, height: orbSize)
