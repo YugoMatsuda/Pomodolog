@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		657649162CFAE16E00C808B3 /* Orb in Frameworks */ = {isa = PBXBuildFile; productRef = 657649152CFAE16E00C808B3 /* Orb */; };
 		658A63032CDCDBC7007D2F0D /* Pomodolog Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 658A63022CDCDBC7007D2F0D /* Pomodolog Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		658A659B2CEC6E49007D2F0D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659A2CEC6E49007D2F0D /* ComposableArchitecture */; };
 		658A659D2CEC6E49007D2F0D /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 658A659C2CEC6E49007D2F0D /* KeychainAccess */; };
@@ -209,6 +210,7 @@
 			files = (
 				658A659D2CEC6E49007D2F0D /* KeychainAccess in Frameworks */,
 				658A659B2CEC6E49007D2F0D /* ComposableArchitecture in Frameworks */,
+				657649162CFAE16E00C808B3 /* Orb in Frameworks */,
 				65A0A3C32CF359FE00FC2260 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -287,6 +289,7 @@
 				658A659A2CEC6E49007D2F0D /* ComposableArchitecture */,
 				658A659C2CEC6E49007D2F0D /* KeychainAccess */,
 				65A0A3C22CF359FE00FC2260 /* AsyncAlgorithms */,
+				657649152CFAE16E00C808B3 /* Orb */,
 			);
 			productName = Pomodolog;
 			productReference = 658A62F22CDCDBC5007D2F0D /* Pomodolog.app */;
@@ -351,6 +354,7 @@
 				658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				658A65752CEC68E7007D2F0D /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				65A0A3C12CF3598E00FC2260 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+				657649142CFAE15E00C808B3 /* XCRemoteSwiftPackageReference "Orb" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 658A62F32CDCDBC5007D2F0D /* Products */;
@@ -687,6 +691,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		657649142CFAE15E00C808B3 /* XCRemoteSwiftPackageReference "Orb" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/metasidd/Orb.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
 		658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
@@ -714,6 +726,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		657649152CFAE16E00C808B3 /* Orb */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 657649142CFAE15E00C808B3 /* XCRemoteSwiftPackageReference "Orb" */;
+			productName = Orb;
+		};
 		658A659A2CEC6E49007D2F0D /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 658A65742CEC68A5007D2F0D /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;

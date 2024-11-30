@@ -1,5 +1,5 @@
 {
-  "originHash" : "fdc356b5f406eab79744c1d70087276ce8dd743d828c5cebe0043fcfe61c7a5f",
+  "originHash" : "d550bed1053a18fe4ae8eb5f608f3998d2437440e8abc449a4c44f947d41ba41",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -17,6 +17,15 @@
       "state" : {
         "branch" : "master",
         "revision" : "e0c7eebc5a4465a3c4680764f26b7a61f567cdaf"
+      }
+    },
+    {
+      "identity" : "orb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/metasidd/Orb.git",
+      "state" : {
+        "revision" : "8c5dda85e55638893f37657b56558968c3e11409",
+        "version" : "0.2.0"
       }
     },
     {

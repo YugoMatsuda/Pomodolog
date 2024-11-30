@@ -1,4 +1,5 @@
 import SwiftUI
+import Orb
 
 struct TimerRingView: View {
     @State private var waveOffset = Angle(degrees: 0)
@@ -88,7 +89,20 @@ struct TimerRingView: View {
                 .frame(width: circleSize, height: circleSize)
                 
             case .breakSession(let data):
-                VStack(spacing: 0) {
+                VStack(spacing: 16) {
+                    let orbSize: CGFloat = circleSize * 0.6
+                    OrbView(configuration:
+                            .init(
+                                backgroundColors: [
+                                    param.timerColor,
+                                    param.timerColor.opacity(0.6),
+                                    param.timerColor.opacity(0.3)
+                                ],
+                                glowColor: .white
+                            )
+                    )
+                    .frame(width: orbSize, height: orbSize)
+                    
                     let text = data.hasFinishedCountDown ? "+" : ""
                     Text(text + data.timerInterval.timerText)
                         .font(
