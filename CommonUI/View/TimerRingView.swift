@@ -6,46 +6,8 @@ struct TimerRingView: View {
     @State private var timer: Timer?
     @Environment(\.colorScheme) var colorScheme
     
-    let config: Config
+    let param: TimerRingParam
     
-    struct Config: Equatable {
-        var progress: CGFloat
-        var timerInterval: TimeInterval
-        var hasFinishedCountDown: Bool
-        var timerState: TimerState
-        var currentTag: Tag
-        
-        init(
-            progress: CGFloat,
-            timerInterval: TimeInterval,
-            hasFinishedCountDown: Bool,
-            timerState: TimerState,
-            currentTag: Tag
-        ) {
-            self.progress = progress
-            self.timerInterval = timerInterval
-            self.hasFinishedCountDown = hasFinishedCountDown
-            self.timerState = timerState
-            self.currentTag = currentTag
-        }
-    }
-    
-    var trimRingScale: CGFloat {
-        config.timerState.isWorkSession ? 1.1 : 0
-    }
-    
-    var dotRingScale: CGFloat {
-        config.timerState.isOngoingSession ? 0 : 1.0
-    }
-    
-    var waveProgress: CGFloat {
-        config.timerState.isOngoingSession ? config.progress : 1
-    }
-    
-    var timerColor: Color {
-        Color(hex: config.currentTag.colorHex) ?? Color.blue
-    }
-
     private var innserCircleBackground: Color {
         return Color(UIColor.darkGray)
     }
@@ -53,79 +15,111 @@ struct TimerRingView: View {
     var body: some View {
         GeometryReader{ proxy in
             let circleSize =  proxy.size.width
-            // MARK: Timer Ring
-            ZStack{
-                Circle()
-                    .stroke(innserCircleBackground, lineWidth: 4)
-                    .scaleEffect(trimRingScale)
-                
-                Circle()
-                    .trim(from: 0, to: config.progress)
-                    .stroke(timerColor.gradient, lineWidth: 4)
-                    .scaleEffect(trimRingScale)
-                    .rotationEffect(.init(degrees: 270))
-                
-                DotCircleView(timerColor: timerColor)
-                    .scaleEffect(dotRingScale)
-
-                
-                Circle()
-                    .fill(timerColor)
-                    .frame(width: 30, height: 30)
-                    .overlay(content: {
-                        Circle()
-                            .fill(.white)
-                            .padding(5)
-                    })
-                    .offset(x: circleSize / 2)
-                    .rotationEffect(.init(degrees: (config.progress * 360) + 270.0))
-                    .scaleEffect(trimRingScale)
-
-                
-                Circle()
-                    .fill(waveProgress >= 1 ? timerColor : innserCircleBackground)
-                    .overlay {
-                        if 0 < waveProgress && waveProgress < 1 {
-                            Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: waveProgress)
-                                .fill(timerColor.gradient.opacity(0.8))
-                                .mask {
-                                    Circle()
-                                }
-                            
-                            Wave(offset: Angle(degrees: self.waveOffset2.degrees), ratio: waveProgress)
-                                .fill(timerColor.opacity(0.5))
-                                .mask {
-                                    Circle()
-                                }
-                        }
-                    }
-                    .scaleEffect(0.9)
-
-                VStack(spacing: 0) {
-                    if !config.timerState.isOngoingSession {
-                        Text(config.currentTag.name)
+            ZStack {
+                switch param {
+                case .idle(let data):
+                    DotCircleView(timerColor: param.timerColor)
+                        .transition(.scale)
+                    
+                    Circle()
+                        .fill(param.timerColor)
+                        .scaleEffect(0.9)
+                    
+                    VStack(spacing: 0) {
+                        Text(data.currentTag.name)
                             .foregroundStyle(.white)
                             .font(.title2)
                             .fontWeight(.semibold)
-                    }
-                    let text = config.hasFinishedCountDown ? "+" : ""
-                    Text(text + config.timerInterval.timerText)
-                        .foregroundStyle(.white)
-                        .font(
-                            .system(
-                                size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                                weight: .bold
+                        Text(data.timerInterval.timerText)
+                            .foregroundStyle(.white)
+                            .font(
+                                .system(
+                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                    weight: .bold
+                                )
                             )
-                        )
-                        .monospacedDigit()
-                        .contentTransition(.numericText(value: config.timerInterval))
-                        .animation(.snappy, value: config.timerInterval.timerText)
+                            .monospacedDigit()
+                            .contentTransition(.numericText(value: data.timerInterval))
+                            .animation(.snappy, value: data.timerInterval.timerText)
+                    }
+                case .workSession(let data):
+                    Circle()
+                        .stroke(innserCircleBackground, lineWidth: 4)
+                        .transition(.scale)
+                        .scaleEffect(1.1)
+
+                    Circle()
+                        .trim(from: 0, to: data.progress)
+                        .stroke(param.timerColor.gradient, lineWidth: 4)
+                        .rotationEffect(.init(degrees: 270))
+                        .transition(.scale)
+                        .scaleEffect(1.1)
+                    
+                    Circle()
+                        .fill(param.timerColor)
+                        .frame(width: 30, height: 30)
+                        .overlay(content: {
+                            Circle()
+                                .fill(.white)
+                                .padding(5)
+                        })
+                        .offset(x: circleSize / 2)
+                        .rotationEffect(.init(degrees: (data.progress * 360) + 270.0))
+                        .scaleEffect(1.1)
+
+                    
+                    Circle()
+                        .fill(data.progress >= 1 ? param.timerColor : innserCircleBackground)
+                        .overlay {
+                            if 0 < data.progress && data.progress < 1 {
+                                Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: data.progress)
+                                    .fill(param.timerColor.gradient.opacity(0.8))
+                                    .mask {
+                                        Circle()
+                                    }
+                                
+                                Wave(offset: Angle(degrees: self.waveOffset2.degrees), ratio: data.progress)
+                                    .fill(param.timerColor.opacity(0.5))
+                                    .mask {
+                                        Circle()
+                                    }
+                            }
+                        }
+                        .scaleEffect(0.9)
+                    
+                    VStack(spacing: 0) {
+                        let text = data.hasFinishedCountDown ? "+" : ""
+                        Text(text + data.timerInterval.timerText)
+                            .foregroundStyle(.white)
+                            .font(
+                                .system(
+                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                    weight: .bold
+                                )
+                            )
+                            .monospacedDigit()
+                            .contentTransition(.numericText(value: data.timerInterval))
+                            .animation(.snappy, value: data.timerInterval.timerText)
+                    }
+                    
+                case .breakSession(let data):
+                    VStack(spacing: 0) {
+                        let text = data.hasFinishedCountDown ? "+" : ""
+                        Text(text + data.timerInterval.timerText)
+                            .font(
+                                .system(
+                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                    weight: .bold
+                                )
+                            )
+                            .monospacedDigit()
+                            .contentTransition(.numericText(value: data.timerInterval))
+                            .animation(.snappy, value: data.timerInterval.timerText)
+                    }
                 }
-              
             }
-            .animation(.easeInOut, value: waveProgress)
             .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
-            .onChange(of: config.timerState.isOngoingSession) { oldValue, newValue in
+            .onChange(of: param.isOngoingSession) { oldValue, newValue in
                 self.timer?.invalidate()
                 guard newValue else { return }
                 startWaveAnimation()
@@ -167,14 +161,62 @@ struct TimerRingView: View {
     }
 }
 
-extension TimerRingView.Config {
-    static func makeIdle(_ timerSetting: TimerSetting) -> TimerRingView.Config {
-        .init(
-            progress: 1,
-            timerInterval: timerSetting.timerType == .countDown ? timerSetting.sessionTimeInterval : 0,
-            hasFinishedCountDown: false,
-            timerState: .initial,
-            currentTag: timerSetting.currentTag ?? .focus()
+extension TimerRingView.TimerRingParam {
+    static func makeIdle(_ timerSetting: TimerSetting) -> TimerRingView.TimerRingParam {
+        .idle(
+            .init(
+                timerInterval: timerSetting.timerType == .countDown ? timerSetting.sessionTimeInterval : 0,
+                currentTag: timerSetting.currentTag ?? .focus()
+            )
         )
     }
 }
+
+extension TimerRingView {
+    enum TimerRingParam: Equatable {
+        case idle(IdleData)
+        case workSession(WorkSessionData)
+        case breakSession(BreakSessionData)
+        
+        struct IdleData: Equatable {
+            var timerInterval: TimeInterval
+            var currentTag: Tag
+        }
+        
+        struct WorkSessionData: Equatable {
+            var timerInterval: TimeInterval
+            var progress: CGFloat
+            var hasFinishedCountDown: Bool
+            var currentTag: Tag
+        }
+        
+        struct BreakSessionData: Equatable {
+            var timerInterval: TimeInterval
+            var hasFinishedCountDown: Bool
+            var currentTag: Tag
+        }
+        
+        var timerColor: Color {
+            switch self {
+            case .idle(let data):
+                Color(hex: data.currentTag.colorHex) ?? Color.blue
+            case .workSession(let data):
+                Color(hex: data.currentTag.colorHex) ?? Color.blue
+            case .breakSession(let data):
+                Color(hex: data.currentTag.colorHex) ?? Color.blue
+            }
+        }
+        
+        var isOngoingSession: Bool {
+            switch self {
+            case .idle:
+                return false
+            case .workSession:
+                return true
+            case .breakSession:
+                return false
+            }
+        }
+    }
+}
+

@@ -8,7 +8,7 @@ struct Home {
     struct State: Equatable {
         @Shared var timerSetting: TimerSetting
         @Presents var destination: Destination.State?
-        var timerConfig: TimerRingView.Config
+        var timerRingParam: TimerRingView.TimerRingParam
         var buttonConfig: ActionButtonConfig
 
         var ongoingSession: PomodoroSession?
@@ -17,7 +17,7 @@ struct Home {
             timerSetting: Shared<TimerSetting>
         ) {
             self._timerSetting = timerSetting
-            self.timerConfig = .makeIdle(timerSetting.wrappedValue)
+            self.timerRingParam = .makeIdle(timerSetting.wrappedValue)
             self.buttonConfig = .initilal(timerSetting.wrappedValue)
         }
         
@@ -163,12 +163,12 @@ struct Home {
                 state.ongoingSession = response.ongoingSession
                 state.timerSetting = response.timerSetting
                 guard let ongoingSession = response.ongoingSession else {
-                    state.timerConfig = .makeIdle(state.timerSetting)
+                    state.timerRingParam = .makeIdle(state.timerSetting)
                     state.buttonConfig = .initilal(state.timerSetting)
                     return .cancel(id: CancelID.timer)
                 }
                 state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
-                state.timerConfig = makeTimerConfig(ongoingSession, state: state)
+                state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
                 return .run { send in
                     for await _ in self.mainQueue.timer(interval: .seconds(0.1)) {
                         await send(
@@ -179,7 +179,7 @@ struct Home {
                 }
                 .cancellable(id: CancelID.timer)
             case let .internal(.passedTime(ongoingSession)):
-                state.timerConfig = makeTimerConfig(ongoingSession, state: state)
+                state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
                 state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
                 return .none
             case .internal:
@@ -210,7 +210,7 @@ struct Home {
     private func makeTimerConfig(
         _ ongoingSession: PomodoroSession,
         state: State
-    ) -> TimerRingView.Config {
+    ) -> TimerRingView.TimerRingParam {
         let timerSetting = state.timerSetting
         let isCountUp = timerSetting.timerType == .countup
         let elapsedTime = state.elapsedTime
@@ -223,12 +223,13 @@ struct Home {
                 let timerInterval = elapsedTime
                 let progress = min(timerInterval / timerSetting.sessionTimeInterval, 1)
                 
-                return TimerRingView.Config(
-                    progress: CGFloat(progress),
-                    timerInterval: timerInterval,
-                    hasFinishedCountDown: state.hasFinishedSessionTime,
-                    timerState: state.timerState,
-                    currentTag: tag
+                return .workSession(
+                    .init(
+                        timerInterval: timerInterval,
+                        progress: CGFloat(progress),
+                        hasFinishedCountDown: state.hasFinishedSessionTime,
+                        currentTag: tag
+                    )
                 )
             } else {
                 // カウントダウンの場合
@@ -236,22 +237,24 @@ struct Home {
                 if state.hasFinishedSessionTime {
                     // カウントダウンが終了した場合、カウントアップに切り替える
                     let newTimerInterval = abs(remainingTime)
-                    return TimerRingView.Config(
-                        progress: 0,
-                        timerInterval: newTimerInterval,
-                        hasFinishedCountDown: true,
-                        timerState: state.timerState,
-                        currentTag: tag
+                    return .workSession(
+                        .init(
+                            timerInterval: newTimerInterval,
+                            progress: 0,
+                            hasFinishedCountDown: true,
+                            currentTag: tag
+                        )
                     )
                 } else {
                     // カウントダウン中
                     let progress = max(remainingTime / timerSetting.sessionTimeInterval, 0)
-                    return TimerRingView.Config(
-                        progress: CGFloat(progress),
-                        timerInterval: remainingTime,
-                        hasFinishedCountDown: false,
-                        timerState: state.timerState,
-                        currentTag: tag
+                    return .workSession(
+                        .init(
+                            timerInterval: remainingTime,
+                            progress: progress,
+                            hasFinishedCountDown: false,
+                            currentTag: tag
+                        )
                     )
                 }
             }
@@ -261,22 +264,20 @@ struct Home {
             if remainingTime < 0 {
                 // カウントダウンが終了した場合、カウントアップに切り替える
                 let newTimerInterval = abs(remainingTime)
-                
-                return TimerRingView.Config(
-                    progress: CGFloat(0),
-                    timerInterval: newTimerInterval,
-                    hasFinishedCountDown: true,
-                    timerState: state.timerState,
-                    currentTag: tag
+                return .breakSession(
+                    .init(
+                        timerInterval: newTimerInterval,
+                        hasFinishedCountDown: true,
+                        currentTag: tag
+                    )
                 )
             } else {
-                let progress = max(remainingTime / timerSetting.shortBreakTimeInterval, 0)
-                return TimerRingView.Config(
-                    progress: CGFloat(progress),
-                    timerInterval: remainingTime,
-                    hasFinishedCountDown: false,
-                    timerState: state.timerState,
-                    currentTag: tag
+                return .breakSession(
+                    .init(
+                        timerInterval: remainingTime,
+                        hasFinishedCountDown: false,
+                        currentTag: tag
+                    )
                 )
             }
         }
@@ -365,7 +366,7 @@ struct HomeView: View {
                     Button(action: {
                         store.send(.view(.didTapTimerRing))
                     }) {
-                        TimerRingView(config: store.timerConfig)
+                        TimerRingView(param: store.timerRingParam)
                             .frame(width: timerSize, height: timerSize)
                     }
                     .buttonStyle(ShrinkButtonStyle())
