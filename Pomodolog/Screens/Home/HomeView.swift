@@ -160,11 +160,14 @@ struct Home {
                 return .none
             case .internal(.observeResponse(.success(let response))):
                 Task.cancel(id: CancelID.timer)
-                let didChangeToBreak: Bool = {
-                    state.ongoingSession?.sessionType == .work
-                    && response.ongoingSession?.sessionType == .break
+                let shouldFetchPraiseWord: Bool = {
+                    // 休憩に変化したケース
+                    let didChangedToBreak = state.ongoingSession?.sessionType == .work && response.ongoingSession?.sessionType == .break
+                    // 別端末で休憩セッション中だったケース
+                    let inBreakSession = state.ongoingSession == nil && response.ongoingSession?.sessionType == .break
+                    return didChangedToBreak || inBreakSession
                 }()
-                AppLogger.shared.log("didChangeToBreak: \(didChangeToBreak)", .debug)
+                AppLogger.shared.log("shouldFetchPraiseWord: \(shouldFetchPraiseWord)", .debug)
                 state.ongoingSession = response.ongoingSession
                 state.timerSetting = response.timerSetting
                 guard let ongoingSession = response.ongoingSession else {
