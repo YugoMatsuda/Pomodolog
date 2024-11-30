@@ -15,115 +15,118 @@ struct TimerRingView: View {
     var body: some View {
         GeometryReader{ proxy in
             let circleSize =  proxy.size.width
-            ZStack {
-                switch param {
-                case .idle(let data):
-                    DotCircleView(timerColor: param.timerColor)
-                        .transition(.scale)
-                    
-                    Circle()
-                        .fill(param.timerColor)
-                        .scaleEffect(0.9)
-                    
-                    VStack(spacing: 0) {
-                        Text(data.currentTag.name)
-                            .foregroundStyle(.white)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        Text(data.timerInterval.timerText)
-                            .foregroundStyle(.white)
-                            .font(
-                                .system(
-                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                                    weight: .bold
+            Group {
+                ZStack {
+                    switch param {
+                    case .idle(let data):
+                        DotCircleView(timerColor: param.timerColor)
+                            .transition(.scale)
+                            .scaleEffect(1.05)
+
+                        Circle()
+                            .fill(param.timerColor)
+                            .scaleEffect(0.9)
+                        
+                        VStack(spacing: 0) {
+                            Text(data.currentTag.name)
+                                .foregroundStyle(.white)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            Text(data.timerInterval.timerText)
+                                .foregroundStyle(.white)
+                                .font(
+                                    .system(
+                                        size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                        weight: .bold
+                                    )
                                 )
-                            )
-                            .monospacedDigit()
-                            .contentTransition(.numericText(value: data.timerInterval))
-                            .animation(.snappy, value: data.timerInterval.timerText)
-                    }
-                case .workSession(let data):
-                    Circle()
-                        .stroke(innserCircleBackground, lineWidth: 4)
-                        .transition(.scale)
-                        .scaleEffect(1.1)
-
-                    Circle()
-                        .trim(from: 0, to: data.progress)
-                        .stroke(param.timerColor.gradient, lineWidth: 4)
-                        .rotationEffect(.init(degrees: 270))
-                        .transition(.scale)
-                        .scaleEffect(1.1)
-                    
-                    Circle()
-                        .fill(param.timerColor)
-                        .frame(width: 30, height: 30)
-                        .overlay(content: {
-                            Circle()
-                                .fill(.white)
-                                .padding(5)
-                        })
-                        .offset(x: circleSize / 2)
-                        .rotationEffect(.init(degrees: (data.progress * 360) + 270.0))
-                        .scaleEffect(1.1)
-
-                    
-                    Circle()
-                        .fill(data.progress >= 1 ? param.timerColor : innserCircleBackground)
-                        .overlay {
-                            if 0 < data.progress && data.progress < 1 {
-                                Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: data.progress)
-                                    .fill(param.timerColor.gradient.opacity(0.8))
-                                    .mask {
-                                        Circle()
-                                    }
-                                
-                                Wave(offset: Angle(degrees: self.waveOffset2.degrees), ratio: data.progress)
-                                    .fill(param.timerColor.opacity(0.5))
-                                    .mask {
-                                        Circle()
-                                    }
-                            }
+                                .monospacedDigit()
+                                .contentTransition(.numericText(value: data.timerInterval))
+                                .animation(.snappy, value: data.timerInterval.timerText)
                         }
-                        .scaleEffect(0.9)
-                    
-                    VStack(spacing: 0) {
-                        let text = data.hasFinishedCountDown ? "+" : ""
-                        Text(text + data.timerInterval.timerText)
-                            .foregroundStyle(.white)
-                            .font(
-                                .system(
-                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                                    weight: .bold
+                    case .workSession(let data):
+                        Circle()
+                            .stroke(innserCircleBackground, lineWidth: 4)
+                            .transition(.scale)
+                            .scaleEffect(1.1)
+
+                        Circle()
+                            .trim(from: 0, to: data.progress)
+                            .stroke(param.timerColor.gradient, lineWidth: 4)
+                            .rotationEffect(.init(degrees: 270))
+                            .transition(.scale)
+                            .scaleEffect(1.1)
+                        
+                        Circle()
+                            .fill(param.timerColor)
+                            .frame(width: 30, height: 30)
+                            .overlay(content: {
+                                Circle()
+                                    .fill(.white)
+                                    .padding(5)
+                            })
+                            .offset(x: circleSize / 2)
+                            .rotationEffect(.init(degrees: (data.progress * 360) + 270.0))
+                            .scaleEffect(1.1)
+
+                        
+                        Circle()
+                            .fill(data.progress >= 1 ? param.timerColor : innserCircleBackground)
+                            .overlay {
+                                if 0 < data.progress && data.progress < 1 {
+                                    Wave(offset: Angle(degrees: self.waveOffset.degrees), ratio: data.progress)
+                                        .fill(param.timerColor.gradient.opacity(0.8))
+                                        .mask {
+                                            Circle()
+                                        }
+                                    
+                                    Wave(offset: Angle(degrees: self.waveOffset2.degrees), ratio: data.progress)
+                                        .fill(param.timerColor.opacity(0.5))
+                                        .mask {
+                                            Circle()
+                                        }
+                                }
+                            }
+                            .scaleEffect(0.9)
+                        
+                        VStack(spacing: 0) {
+                            let text = data.hasFinishedCountDown ? "+" : ""
+                            Text(text + data.timerInterval.timerText)
+                                .foregroundStyle(.white)
+                                .font(
+                                    .system(
+                                        size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                        weight: .bold
+                                    )
                                 )
-                            )
-                            .monospacedDigit()
-                            .contentTransition(.numericText(value: data.timerInterval))
-                            .animation(.snappy, value: data.timerInterval.timerText)
-                    }
-                    
-                case .breakSession(let data):
-                    VStack(spacing: 0) {
-                        let text = data.hasFinishedCountDown ? "+" : ""
-                        Text(text + data.timerInterval.timerText)
-                            .font(
-                                .system(
-                                    size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
-                                    weight: .bold
+                                .monospacedDigit()
+                                .contentTransition(.numericText(value: data.timerInterval))
+                                .animation(.snappy, value: data.timerInterval.timerText)
+                        }
+                        
+                    case .breakSession(let data):
+                        VStack(spacing: 0) {
+                            let text = data.hasFinishedCountDown ? "+" : ""
+                            Text(text + data.timerInterval.timerText)
+                                .font(
+                                    .system(
+                                        size: UIDevice.current.userInterfaceIdiom == .phone ? 45 : 90,
+                                        weight: .bold
+                                    )
                                 )
-                            )
-                            .monospacedDigit()
-                            .contentTransition(.numericText(value: data.timerInterval))
-                            .animation(.snappy, value: data.timerInterval.timerText)
+                                .monospacedDigit()
+                                .contentTransition(.numericText(value: data.timerInterval))
+                                .animation(.snappy, value: data.timerInterval.timerText)
+                        }
                     }
                 }
             }
-            .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
             .onChange(of: param.isOngoingSession) { oldValue, newValue in
                 self.timer?.invalidate()
                 guard newValue else { return }
                 startWaveAnimation()
             }
+            .position(x: proxy.frame(in: .local).midX, y: proxy.frame(in: .local).midY)
         }
     }
     
