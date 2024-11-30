@@ -170,7 +170,7 @@ struct Home {
                 state.buttonConfig = makeButtonConfig(ongoingSession, state: state)
                 state.timerConfig = makeTimerConfig(ongoingSession, state: state)
                 return .run { send in
-                    for await _ in self.mainQueue.timer(interval: .seconds(1)) {
+                    for await _ in self.mainQueue.timer(interval: .seconds(0.1)) {
                         await send(
                             .internal(.passedTime(ongoingSession)),
                             animation: .default
