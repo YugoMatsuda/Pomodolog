@@ -83,6 +83,31 @@ struct SpeachContentView: View {
                         .multilineTextAlignment(.center)
                         .animation(.easeInOut(duration: 0.5), value: store.displayResult)
                         .contentTransition(.opacity)
+                        .padding()
+                    
+                    HStack {
+                        Spacer()
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "hand.thumbsup.circle")
+                                .font(.largeTitle)
+                        }
+                        Spacer().frame(width: 32)
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "hand.thumbsdown.circle")
+                                .font(.largeTitle)
+                        }
+                        Spacer()
+                    }
+                    
+                    Text("If you like our words, press the Good button; if not, press the Bad button. The AI will learn and use it to generate words for next time.")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                        .padding(.horizontal)
+                        .padding(.top)
                 }
                 .padding()
             case .failure:
