@@ -144,6 +144,15 @@ struct TimerSettingView: View {
                             .pickerStyle(.menu)
                         }
                         
+                        Section("BGM") {
+                            Picker("BGM", selection: $store.timerSetting.backgroundMusicType) {
+                                ForEach(BackgroundMusicType.allCases, id: \.self) {
+                                    Text($0.title).tag($0)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                        }
+                        
                         Section("Tags") {
                             ForEach(tags) { tag in
                                 let tagId = tag.id
