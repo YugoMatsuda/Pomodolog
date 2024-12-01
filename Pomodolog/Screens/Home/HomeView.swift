@@ -9,15 +9,21 @@ struct Home {
         @Shared var timerSetting: TimerSetting
         @Presents var destination: Destination.State?
         var timerRingParam: TimerRingView.TimerRingParam
+        var isOnBackGroundMusicSound: Bool
+        var isOnAIVoiceSound: Bool
         var speachContent: SpeachContent.State?
         
         var ongoingSession: PomodoroSession?
         
         init(
-            timerSetting: Shared<TimerSetting>
+            timerSetting: Shared<TimerSetting>,
+            isOnBackGroundMusicSound: Bool,
+            isOnAIVoiceSound: Bool
         ) {
             self._timerSetting = timerSetting
             self.timerRingParam = .makeIdle(timerSetting.wrappedValue)
+            self.isOnBackGroundMusicSound = isOnBackGroundMusicSound
+            self.isOnAIVoiceSound = isOnAIVoiceSound
             self.speachContent = nil
         }
         
@@ -104,6 +110,8 @@ struct Home {
             case didTapActionButton
             case didLongPressActionButton
             case didTapTimerRing
+            case didTapBGMSoundButton
+            case didTapAIVoiceSoundButton
         }
         
         enum InternalAction {
@@ -117,7 +125,8 @@ struct Home {
     @Dependency(\.speechSynthesizerClient) var speechSynthesizerClient
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.continuousClock) var clock
-    
+    @Dependency(\.userDefaults) var userDefaults
+
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce<State, Action> { state, action in
@@ -164,6 +173,16 @@ struct Home {
                     )
                 )
                 return .none
+            case .view(.didTapBGMSoundButton):
+                state.isOnBackGroundMusicSound.toggle()
+                return .run { [state] _ in
+                    await userDefaults.setIsOnBackGroundMusicSound(state.isOnBackGroundMusicSound)
+                }
+            case .view(.didTapAIVoiceSoundButton):
+                state.isOnAIVoiceSound.toggle()
+                return .run { [state] _ in
+                    await userDefaults.setIsOnAIVoiceSound(state.isOnAIVoiceSound)
+                }
             case .internal(.observeResponse(.success(let response))):
                 Task.cancel(id: CancelID.timer)
                 let shouldFetchPraiseWord: Bool = {
@@ -456,12 +475,16 @@ struct HomeView: View {
             case .initial:
                 EmptyView()
             case .work:
-                Button("", systemImage: "speaker.wave.2.fill") {
+                let imageName = store.isOnBackGroundMusicSound ? "speaker.wave.2.fill" : "speaker.slash.fill"
+                Button("", systemImage: imageName) {
+                    store.send(.view(.didTapBGMSoundButton))
                 }
                 .foregroundStyle(.white)
                 .buttonStyle(.plain)
             case .workBreak:
-                Button("", systemImage: "speaker.wave.2.fill") {
+                let imageName = store.isOnAIVoiceSound ? "speaker.wave.2.fill" : "speaker.slash.fill"
+                Button("", systemImage: imageName) {
+                    store.send(.view(.didTapAIVoiceSoundButton))
                 }
                 .buttonStyle(.plain)
             }
@@ -509,7 +532,9 @@ struct HomeView: View {
 
 #Preview {
     HomeView(store: .init(initialState: Home.State.init(
-        timerSetting: Shared(TimerSetting.initial())
+        timerSetting: Shared(TimerSetting.initial()),
+        isOnBackGroundMusicSound: false,
+        isOnAIVoiceSound: false
     ), reducer: {
         Home()
     }))

@@ -14,9 +14,17 @@ struct RootPage {
             home.timerState.isOngoingSession
         }
         
-        init(timerSettnig: Shared<TimerSetting>) {
+        init(
+            timerSettnig: Shared<TimerSetting>,
+            isOnBackGroundMusicSound: Bool,
+            isOnAIVoiceSound: Bool
+        ) {
             self._timerSettnig = timerSettnig
-            self.home = .init(timerSetting: timerSettnig)
+            self.home = .init(
+                timerSetting: timerSettnig,
+                isOnBackGroundMusicSound: isOnBackGroundMusicSound,
+                isOnAIVoiceSound: isOnAIVoiceSound
+            )
             self.hilight = .init()
         }
         
@@ -106,7 +114,10 @@ struct RootPageView: View {
     RootPageView(
         store: .init(
             initialState: RootPage.State(
-                timerSettnig: Shared<TimerSetting>.init(.initial())),
+                timerSettnig: Shared<TimerSetting>.init(.initial()),
+                isOnBackGroundMusicSound: true,
+                isOnAIVoiceSound: true
+            ),
             reducer: {
                 RootPage()
             })

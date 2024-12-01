@@ -21,6 +21,8 @@ struct AppFeature {
         case rootPage(RootPage.Action)
         case splash(Splash.Action)
     }
+    
+    @Dependency(\.userDefaults) var userDefaults
 
     var body: some ReducerOf<Self> {
         Scope(state: \.appDelegate, action: \.appDelegate) {
@@ -40,9 +42,13 @@ struct AppFeature {
                 state.rootAppState = .splash(Splash.State.init())
                 return .none
             case .splash(.delegate(.didCompleteLaunch(let timerSetting))):
+                let isOnBackGroundMusicSound = userDefaults.isOnBackGroundMusicSound
+                let isOnAIVoiceSound = userDefaults.isOnAIVoiceSound
                 state.rootAppState = .rootPage(
                     RootPage.State.init(
-                        timerSettnig: Shared(timerSetting)
+                        timerSettnig: Shared(timerSetting),
+                        isOnBackGroundMusicSound: isOnBackGroundMusicSound,
+                        isOnAIVoiceSound: isOnAIVoiceSound
                     )
                 )
                 return .none
