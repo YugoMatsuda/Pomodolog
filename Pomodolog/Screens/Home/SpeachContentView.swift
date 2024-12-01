@@ -69,6 +69,11 @@ struct SpeachContentView: View {
             case .success(let param):
                 VStack {
                     Text(param.text)
+                        .foregroundStyle(LinearGradient(
+                            colors: [.red, .blue, .green, .yellow],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ))
                         .font(
                             .system(
                                 size: UIDevice.current.userInterfaceIdiom == .phone ? 25 : 50,
