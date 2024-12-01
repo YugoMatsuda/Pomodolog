@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 import AsyncAlgorithms
+import AVFoundation
 
 @Reducer
 struct Home {
@@ -12,6 +13,7 @@ struct Home {
         var isOnBackGroundMusicSound: Bool
         var isOnAIVoiceSound: Bool
         var speachContent: SpeachContent.State?
+        var avAudioPlayer: AVAudioPlayer? = nil
         
         var ongoingSession: PomodoroSession?
         
@@ -175,6 +177,11 @@ struct Home {
                 return .none
             case .view(.didTapBGMSoundButton):
                 state.isOnBackGroundMusicSound.toggle()
+                if state.isOnBackGroundMusicSound {
+                    state.avAudioPlayer?.play()
+                } else {
+                    state.avAudioPlayer?.stop()
+                }
                 return .run { [state] _ in
                     await userDefaults.setIsOnBackGroundMusicSound(state.isOnBackGroundMusicSound)
                 }
@@ -190,6 +197,7 @@ struct Home {
                 }
             case .internal(.observeResponse(.success(let response))):
                 Task.cancel(id: CancelID.timer)
+                
                 let shouldFetchPraiseWord: Bool = {
                     // 休憩に変化したケース
                     let didChangedToBreak = state.ongoingSession?.sessionType == .work && response.ongoingSession?.sessionType == .break
@@ -197,6 +205,7 @@ struct Home {
                     let inBreakSession = state.ongoingSession == nil && response.ongoingSession?.sessionType == .break
                     return didChangedToBreak || inBreakSession
                 }()
+                
                 AppLogger.shared.log("shouldFetchPraiseWord: \(shouldFetchPraiseWord)", .debug)
                 if shouldFetchPraiseWord {
                     state.speachContent = .init(displayResult: .loading)
@@ -204,12 +213,22 @@ struct Home {
                 
                 state.ongoingSession = response.ongoingSession
                 state.timerSetting = response.timerSetting
+                
                 guard let ongoingSession = response.ongoingSession else {
                     state.timerRingParam = .makeIdle(state.timerSetting)
                     state.speachContent = nil
+                    state.avAudioPlayer?.stop()
+                    state.avAudioPlayer = nil
+                    speechSynthesizerClient.stopSpeaking()
                     return .cancel(id: CancelID.timer)
                 }
+
                 state.timerRingParam = makeTimerConfig(ongoingSession, state: state)
+                state.avAudioPlayer = makePlayer(ongoingSession, state: state)
+                if state.isOnBackGroundMusicSound {
+                    state.avAudioPlayer?.play()
+                }
+                
                 return .merge(
                     .run { send in
                         for await _ in self.mainQueue.timer(interval: .seconds(0.1)) {
@@ -345,6 +364,23 @@ struct Home {
                     )
                 )
             }
+        }
+    }
+    
+    private func makePlayer(
+        _ ongoingSession: PomodoroSession,
+        state: State
+    ) -> AVAudioPlayer? {
+        guard case .work  = state.timerState, let url = BackGroundMusicType.bird.fileUR else {
+            return nil
+        }
+        do {
+            let player =  try AVAudioPlayer(contentsOf: url)
+            player.numberOfLoops = -1
+            return player
+        } catch {
+            AppLogger.shared.log("Failed to make player", .crit)
+            return nil
         }
     }
     
