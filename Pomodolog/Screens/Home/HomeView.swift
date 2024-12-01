@@ -475,7 +475,7 @@ struct HomeView: View {
             case .initial:
                 EmptyView()
             case .work:
-                let imageName = store.isOnBackGroundMusicSound ? "speaker.wave.2.fill" : "speaker.slash.fill"
+                let imageName = store.isOnBackGroundMusicSound ? "waveform" : "waveform.slash"
                 Button("", systemImage: imageName) {
                     store.send(.view(.didTapBGMSoundButton))
                 }
