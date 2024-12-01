@@ -235,7 +235,7 @@ struct Home {
                     displayResult: .success(
                         .init(
                             text: word,
-                            color: .blue
+                            color: Color(hex: state.timerSetting.currentTag?.colorHex ?? "") ?? .blue
                         )
                     )
                 )

@@ -7,6 +7,7 @@ struct SpeachContent {
     @ObservableState
     struct State: Equatable {
         var displayResult: DisplayResult
+        var feedBackType: FeedBackType? = nil
         
         init(displayResult: DisplayResult) {
             self.displayResult = displayResult
@@ -22,6 +23,11 @@ struct SpeachContent {
             let text: String
             let color: Color
         }
+        
+        enum FeedBackType: Equatable {
+            case good
+            case bad
+        }
     }
     
     enum Action: BindableAction {
@@ -32,6 +38,8 @@ struct SpeachContent {
 
         enum ViewAction: Equatable {
             case onLoad
+            case didTapGoodButton
+            case didTapBadButton
         }
         
         enum DelegateAction: Equatable {
@@ -48,6 +56,20 @@ struct SpeachContent {
         Reduce { state, action in
             switch action {
             case .view(.onLoad):
+                return .none
+            case .view(.didTapGoodButton):
+                if state.feedBackType == .good {
+                    state.feedBackType = nil
+                } else {
+                    state.feedBackType = .good
+                }
+                return .none
+            case .view(.didTapBadButton):
+                if state.feedBackType == .bad {
+                    state.feedBackType = nil
+                } else {
+                    state.feedBackType = .bad
+                }
                 return .none
             case .internal:
                 return .none
@@ -88,18 +110,27 @@ struct SpeachContentView: View {
                     HStack {
                         Spacer()
                         Button {
-                            
+                            store.send(.view(.didTapGoodButton))
                         } label: {
-                            Image(systemName: "hand.thumbsup.circle")
+                            let imageName = store.feedBackType == .good ? "hand.thumbsup.circle.fill" : "hand.thumbsup.circle"
+                            Image(systemName: imageName)
                                 .font(.largeTitle)
+                                .foregroundStyle(param.color)
                         }
+                        .buttonStyle(.plain)
+
                         Spacer().frame(width: 32)
+    
                         Button {
-                            
+                            store.send(.view(.didTapBadButton))
                         } label: {
-                            Image(systemName: "hand.thumbsdown.circle")
+                            let imageName = store.feedBackType == .bad ? "hand.thumbsdown.circle.fill" : "hand.thumbsdown.circle"
+                            Image(systemName: imageName)
                                 .font(.largeTitle)
+                                .foregroundStyle(param.color)
                         }
+                        .buttonStyle(.plain)
+
                         Spacer()
                     }
                     
