@@ -47,6 +47,32 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6502F2B72CFC1EC500CA17F1 /* Exceptions for "BGM" folder in "Pomodolog" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				bird.mp3,
+				clock.mp3,
+				insect.mp3,
+				openFire.mp3,
+				rain.mp3,
+				river.mp3,
+				wave.mp3,
+			);
+			target = 658A62F12CDCDBC5007D2F0D /* Pomodolog */;
+		};
+		6502F2B82CFC1EC500CA17F1 /* Exceptions for "BGM" folder in "Pomodolog Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				bird.mp3,
+				clock.mp3,
+				insect.mp3,
+				openFire.mp3,
+				rain.mp3,
+				river.mp3,
+				wave.mp3,
+			);
+			target = 658A63012CDCDBC7007D2F0D /* Pomodolog Watch App */;
+		};
 		65A0A2D72CF053B700FC2260 /* Exceptions for "Pomodolog" folder in "Pomodolog" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -137,6 +163,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6502F2A12CFC1EBA00CA17F1 /* BGM */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6502F2B72CFC1EC500CA17F1 /* Exceptions for "BGM" folder in "Pomodolog" target */,
+				6502F2B82CFC1EC500CA17F1 /* Exceptions for "BGM" folder in "Pomodolog Watch App" target */,
+			);
+			path = BGM;
+			sourceTree = "<group>";
+		};
 		658A62F42CDCDBC5007D2F0D /* Pomodolog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -231,6 +266,7 @@
 		658A62E92CDCDBC5007D2F0D = {
 			isa = PBXGroup;
 			children = (
+				6502F2A12CFC1EBA00CA17F1 /* BGM */,
 				65A0A3A72CF2E82C00FC2260 /* Keychain */,
 				65A0A3892CF05F6400FC2260 /* CommonUI */,
 				65A0A37F2CF05C1500FC2260 /* Domain */,
