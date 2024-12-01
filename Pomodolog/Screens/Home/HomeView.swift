@@ -371,7 +371,7 @@ struct Home {
         _ ongoingSession: PomodoroSession,
         state: State
     ) -> AVAudioPlayer? {
-        guard case .work  = state.timerState, let url = BackGroundMusicType.bird.fileUR else {
+        guard case .work = state.timerState, let url = BackGroundMusicType.random.fileURL else {
             return nil
         }
         do {
@@ -449,10 +449,6 @@ struct HomeView: View {
                             )
                         ) { store in
                             TimerSettingView(store: store)
-                                .presentationDetents([
-                                    .fraction(0.7),
-                                    .large,
-                                ])
                         }
                         
                         if let store = self.store.scope(state: \.speachContent, action: \.speachContent) {
