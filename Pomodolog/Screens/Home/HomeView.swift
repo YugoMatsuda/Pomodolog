@@ -180,6 +180,11 @@ struct Home {
                 }
             case .view(.didTapAIVoiceSoundButton):
                 state.isOnAIVoiceSound.toggle()
+                if state.isOnAIVoiceSound, case .success(let param) = state.speachContent?.displayResult {
+                    speechSynthesizerClient.startSpeaking(.init(text: param.text))
+                } else {
+                    speechSynthesizerClient.stopSpeaking()
+                }
                 return .run { [state] _ in
                     await userDefaults.setIsOnAIVoiceSound(state.isOnAIVoiceSound)
                 }
@@ -234,6 +239,7 @@ struct Home {
                         )
                     )
                 )
+                guard state.isOnAIVoiceSound else { return .none }
                 speechSynthesizerClient.startSpeaking(.init(text: word))
                 return .none
             case .speachContent:
