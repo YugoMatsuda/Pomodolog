@@ -365,75 +365,124 @@ struct HomeView: View {
     @Bindable var store: StoreOf<Home>
     
     var body: some View {
-        GeometryReader { proxy in
-            let timerSize = min(420, proxy.size.width * 0.6)
-            let buttonSize = min(300, proxy.size.width * 0.35)
-            ZStack{
-                AuroraView(color: store.currentTagColor)
-                    .opacity(store.timerState.isWorkSession ? 1 : 0)
-                VStack {
-                    switch store.timerState {
-                    case .initial:
+        NavigationStack {
+            GeometryReader { proxy in
+                let timerSize = min(420, proxy.size.width * 0.6)
+                let buttonSize = min(300, proxy.size.width * 0.35)
+                ZStack{
+                    AuroraView(color: store.currentTagColor)
+                        .opacity(store.timerState.isWorkSession ? 1 : 0)
+                    VStack {
+                        spacer
+                        Button(action: {
+                            store.send(.view(.didTapTimerRing))
+                        }) {
+                            TimerRingView(param: store.timerRingParam, circleSize: timerSize)
+                        }
+                        .buttonStyle(ShrinkButtonStyle())
+                        .disabled(store.timerState.isOngoingSession)
+                        .sheet(
+                            item: $store.scope(
+                                state: \.destination?.timerSettingView,
+                                action: \.destination.timerSettingView
+                            )
+                        ) { store in
+                            TimerSettingView(store: store)
+                                .presentationDetents([
+                                    .fraction(0.7),
+                                    .large,
+                                ])
+                        }
+                        
+                        if let store = self.store.scope(state: \.speachContent, action: \.speachContent) {
+                            SpeachContentView(store: store)
+                        }
+                        
+                        button(size: buttonSize)
+                        
                         Spacer()
-                    case .work:
-                        Text(store.timerSetting.currentTag?.name ?? "")
-                            .foregroundStyle(.white)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal)
-                        Spacer()
-                    case .workBreak:
-                        Text("Break")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal)
-                        Spacer().frame(height: 12)
-                    }
-
-                    Button(action: {
-                        store.send(.view(.didTapTimerRing))
-                    }) {
-                        TimerRingView(param: store.timerRingParam, circleSize: timerSize)
-                    }
-                    .buttonStyle(ShrinkButtonStyle())
-                    .disabled(store.timerState.isOngoingSession)
-                    .sheet(
-                        item: $store.scope(
-                            state: \.destination?.timerSettingView,
-                            action: \.destination.timerSettingView
-                        )
-                    ) { store in
-                        TimerSettingView(store: store)
-                            .presentationDetents([
-                                .fraction(0.7),
-                                .large,
-                            ])
                     }
                     
-                    if let store = self.store.scope(state: \.speachContent, action: \.speachContent) {
-                        SpeachContentView(store: store)
+                    if store.shouldShowLongPressBachgound {
+                        LongPressBackgroundButtonView(color: store.currentTagColor, longPressAction: {
+                            store.send(.view(.didLongPressActionButton))
+                        })
                     }
-                    
-                    button(size: buttonSize)
-                    
-                    Spacer()
                 }
-                
-                if store.shouldShowLongPressBachgound {
-                    LongPressBackgroundButtonView(color: store.currentTagColor, longPressAction: {
-                        store.send(.view(.didLongPressActionButton))
-                    })
+                .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        toolBarTitle
+                    }
+                    
+                    ToolbarItem(placement: .topBarTrailing) {
+                        toolBarTrailingButton
+                    }
                 }
             }
-            .position(x: proxy.size.width * 0.5, y: proxy.size.height * 0.5)
+            .onLoad {
+                store.send(.view(.onLoad))
+            }
         }
-        .onLoad {
-            store.send(.view(.onLoad))
+
+    }
+    
+    @ViewBuilder
+    private var toolBarTitle: some View {
+        Group {
+            switch store.timerState {
+            case .initial:
+                EmptyView()
+            case .work:
+                Text(store.timerSetting.currentTag?.name ?? "")
+                    .foregroundStyle(.white)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal)
+            case .workBreak:
+                Text("Break")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal)
+            }
         }
     }
     
     @ViewBuilder
-    func button(size: CGFloat) -> some View {
+    private var toolBarTrailingButton: some View {
+        Group {
+            switch store.timerState {
+            case .initial:
+                EmptyView()
+            case .work:
+                Button("", systemImage: "speaker.wave.2.fill") {
+                }
+                .foregroundStyle(.white)
+                .buttonStyle(.plain)
+            case .workBreak:
+                Button("", systemImage: "speaker.wave.2.fill") {
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private  var spacer: some View {
+        switch store.timerState {
+        case .initial:
+            Spacer()
+        case .work:
+            Spacer()
+
+        case .workBreak:
+            Spacer().frame(height: 12)
+        }
+    }
+    
+    @ViewBuilder
+    private func button(size: CGFloat) -> some View {
         if let config = store.actionButtonConfig {
             VStack {
                 Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
