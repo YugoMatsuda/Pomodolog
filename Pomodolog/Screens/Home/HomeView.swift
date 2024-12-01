@@ -371,7 +371,9 @@ struct Home {
         _ ongoingSession: PomodoroSession,
         state: State
     ) -> AVAudioPlayer? {
-        guard case .work = state.timerState, let url = BackGroundMusicType.random.fileURL else {
+        guard case .work = state.timerState,
+              let url = state.timerSetting.backgroundMusicType.fileURL
+        else {
             return nil
         }
         do {

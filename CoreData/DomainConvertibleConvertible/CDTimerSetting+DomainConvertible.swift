@@ -14,7 +14,9 @@ extension CDTimerSetting: DomainConvertible {
 
     func toDomain(context: NSManagedObjectContext) -> TimerSetting? {
         guard let timerTypeValue = self.timerType,
-              let type = TimerSetting.TimerType(rawValue: timerTypeValue)
+              let type = TimerSetting.TimerType(rawValue: timerTypeValue),
+              let backgroundMusicTypeValue = self.backgroundMusicType,
+              let backgroundMusicType = BackgroundMusicType(rawValue: backgroundMusicTypeValue)
         else { return nil }
         return TimerSetting.init(
             sessionTimeMinutes: Int(self.sessionTimeMinutes),
@@ -22,6 +24,7 @@ extension CDTimerSetting: DomainConvertible {
             longBreakTimeMinutes: Int(self.longBreakMinutes),
             sessionCycle: Int(self.sessionCycle),
             timerType: type,
+            backgroundMusicType: backgroundMusicType,
             currentTag: self.currentTag?.toDomain(context: context)
         )
     }
@@ -41,6 +44,7 @@ extension CDTimerSetting: DomainConvertible {
         }
         cdTimerSetting.sessionTimeMinutes = Int16(domain.sessionTimeMinutes)
         cdTimerSetting.timerType = domain.timerType.rawValue
+        cdTimerSetting.backgroundMusicType = domain.backgroundMusicType.rawValue
         cdTimerSetting.shortBreakTimeMinutes = Int16(domain.shortBreakTimeMinutes)
         cdTimerSetting.longBreakMinutes = Int16(domain.longBreakTimeMinutes)
         cdTimerSetting.sessionCycle = Int16(domain.sessionCycle)

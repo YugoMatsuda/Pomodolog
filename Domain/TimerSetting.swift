@@ -6,6 +6,7 @@ struct TimerSetting: Equatable, Sendable {
     var longBreakTimeMinutes: Int
     var sessionCycle: Int
     var timerType: TimerType
+    var backgroundMusicType: BackgroundMusicType
     var currentTag: Tag?
     
     var sessionTimeInterval: TimeInterval {
@@ -27,6 +28,7 @@ struct TimerSetting: Equatable, Sendable {
         longBreakTimeMinutes: Int,
         sessionCycle: Int,
         timerType: TimerType,
+        backgroundMusicType: BackgroundMusicType,
         currentTag: Tag?
     ) {
         self.sessionTimeMinutes = sessionTimeMinutes
@@ -34,6 +36,7 @@ struct TimerSetting: Equatable, Sendable {
         self.longBreakTimeMinutes = longBreakTimeMinutes
         self.sessionCycle = sessionCycle
         self.timerType = timerType
+        self.backgroundMusicType = backgroundMusicType
         self.currentTag = currentTag
     }
 }
@@ -70,6 +73,7 @@ extension TimerSetting {
             longBreakTimeMinutes: 15,
             sessionCycle: 4,
             timerType: .initial(),
+            backgroundMusicType: .random,
             currentTag: .focus()
         )
     }

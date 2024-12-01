@@ -1,6 +1,6 @@
 import Foundation
 
-enum BackGroundMusicType: String, CaseIterable {
+enum BackgroundMusicType: String, CaseIterable {
     case random
     case bird
     case clock
@@ -12,7 +12,7 @@ enum BackGroundMusicType: String, CaseIterable {
     
     var fileURL: URL? {
         if self == .random {
-            return BackGroundMusicType.allCases
+            return BackgroundMusicType.allCases
                 .filter { $0 != .random }
                 .randomElement()?
                 .fileURL
