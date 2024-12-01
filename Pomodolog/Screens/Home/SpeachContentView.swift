@@ -85,6 +85,10 @@ struct SpeachContent {
 struct SpeachContentView: View {
     @Bindable var store: StoreOf<SpeachContent>
 
+    var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+    
     var body: some View {
         Group {
             switch store.displayResult {
@@ -98,7 +102,7 @@ struct SpeachContentView: View {
                         ))
                         .font(
                             .system(
-                                size: UIDevice.current.userInterfaceIdiom == .phone ? 25 : 50,
+                                size: isPhone ? 25 : 50,
                                 weight: .regular
                             )
                         )
@@ -108,14 +112,16 @@ struct SpeachContentView: View {
                         .padding()
                     
                     HStack {
+                        let size: CGFloat = isPhone ? 40 : 80
                         Spacer()
                         Button {
                             store.send(.view(.didTapGoodButton))
                         } label: {
                             let imageName = store.feedBackType == .good ? "hand.thumbsup.circle.fill" : "hand.thumbsup.circle"
                             Image(systemName: imageName)
-                                .font(.largeTitle)
+                                .resizable()
                                 .foregroundStyle(param.color)
+                                .frame(width: size, height: size)
                         }
                         .buttonStyle(.plain)
 
@@ -126,8 +132,9 @@ struct SpeachContentView: View {
                         } label: {
                             let imageName = store.feedBackType == .bad ? "hand.thumbsdown.circle.fill" : "hand.thumbsdown.circle"
                             Image(systemName: imageName)
-                                .font(.largeTitle)
+                                .resizable()
                                 .foregroundStyle(param.color)
+                                .frame(width: size, height: size)
                         }
                         .buttonStyle(.plain)
 
@@ -135,7 +142,12 @@ struct SpeachContentView: View {
                     }
                     
                     Text("If you like our words, press the Good button; if not, press the Bad button. The AI will learn and use it to generate words for next time.")
-                        .font(.caption)
+                        .font(
+                            .system(
+                                size: isPhone ? 12 : 25,
+                                weight: .regular
+                            )
+                        )
                         .foregroundStyle(.gray)
                         .padding(.horizontal)
                         .padding(.top)
@@ -145,7 +157,9 @@ struct SpeachContentView: View {
                 Text("Failed to genrerate words.")
                     .padding()
             case .loading:
+                let size: CGFloat = isPhone ? 40 : 80
                 ProgressView()
+                    .frame(width: size, height: size)
                     .padding()
             }
         }

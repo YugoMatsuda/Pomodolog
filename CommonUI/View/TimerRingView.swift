@@ -102,7 +102,7 @@ struct TimerRingView: View {
                         .contentTransition(.numericText(value: data.timerInterval))
                         .animation(.snappy, value: data.timerInterval.timerText)
                     
-                    let orbSize: CGFloat = circleSize * 0.6
+                    let orbSize: CGFloat = circleSize * 0.5
                     OrbView(configuration:
                             .init(
                                 backgroundColors: [

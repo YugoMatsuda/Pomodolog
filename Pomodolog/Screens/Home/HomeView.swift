@@ -514,7 +514,7 @@ struct HomeView: View {
     private func button(size: CGFloat) -> some View {
         if let config = store.actionButtonConfig {
             VStack {
-                Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 50 : 80)
+                Spacer().frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 40 : 60)
                 Button {
                     store.send(.view(.didTapActionButton))
                 } label: {
