@@ -107,6 +107,7 @@
 		65A0A3832CF05C2000FC2260 /* Exceptions for "Domain" folder in "Pomodolog" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				BackGroundMusicType.swift,
 				PomodoroSession.swift,
 				Tag.swift,
 				TimerSetting.swift,
@@ -117,6 +118,7 @@
 		65A0A3842CF05C2000FC2260 /* Exceptions for "Domain" folder in "Pomodolog Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				BackGroundMusicType.swift,
 				PomodoroSession.swift,
 				Tag.swift,
 				TimerSetting.swift,
